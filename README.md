@@ -1,2 +1,2 @@
 # accounting
-A Django app for simple accountin operations
+A Django app for simple accounting operations
