@@ -8,10 +8,11 @@ class Invoice(models.Model):
     active = models.BooleanField('Attiva/Passiva', default=False, )
     date = models.DateTimeField('Data', default = now, )
     descr = models.TextField('Causale', null=True, blank=True, )
-    amount = models.FloatField('Imponibile', )
-    security = models.FloatField('Contributo previdenziale', null=True,
-        blank=True, )
-    vat = models.FloatField('IVA', null=True, blank=True, )
+    amount = models.DecimalField('Imponibile', max_digits=8, decimal_places=2)
+    security = models.DecimalField('Contributo previdenziale', null=True,
+        blank=True, max_digits=8, decimal_places=2 )
+    vat = models.DecimalField('IVA', null=True, blank=True, max_digits=8,
+        decimal_places=2 )
     category = models.CharField('Categoria', max_length = 5, choices = CAT,
         default = 'X', help_text = """'A' per le attive e 'P' per le passive.
             """)
