@@ -3,7 +3,16 @@
 {% block title %}{{ website.acro }} | Fatture{% endblock title %}
 
 {% block content %}
-<h4><strong>Lista delle fatture</strong></h4>
+<div class="row">
+  <div class="col col-md-4">
+    <h4><strong>Lista delle fatture</strong></h4>
+  </div>
+  <div class="col col-md-8 text-right">
+    {% if perms.accounting.add_invoice %}
+      <a class="btn btn-secondary" href="/fatture/add/">Aggiungi fattura</a>
+    {% endif %}
+  </div>
+</div>
 <hr class="mb-4">
 {% if perms.accounting.view_invoice and all_invoices %}
   <div class="table-responsive">
