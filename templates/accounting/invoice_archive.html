@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ website.acro }} | Fatture{% endblock title %}
+
+{% block content %}
+<h4><strong>Lista delle fatture</strong></h4>
+<hr class="mb-4">
+{% if perms.accounting.view_invoice and all_invoices %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">Numero</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Data</th>
+          <th scope="col">Imponibile</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in all_invoices %}
+        <tr>
+          <td>{{ invoice.number }}</td>
+          <td>{{ invoice.client }}</td>
+          <td>{{ invoice.date|date:"d/m/Y" }}</td>
+          <td>€{{ invoice.amount }}</td>
+        </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+  </div>
+{% else %}
+    <div class="col-md-12">
+        <p>Non ci sono fatture da mostrare.</p>
+    </div>
+{% endif %}
+<hr class="mb-4">
+{% if is_paginated %}
+  <nav aria-label="Page navigation container">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+    <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; PRECEDENTI </a></li>
+    {% endif %}
+    {% if page_obj.has_next %}
+    <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> PROSSIME &raquo;</a></li>
+    {% endif %}
+  </ul>
+  </nav>
+{% endif %}
+{% endblock content %}
