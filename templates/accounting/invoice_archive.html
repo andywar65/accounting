@@ -9,7 +9,7 @@
   </div>
   <div class="col col-md-8 text-right">
     {% if perms.accounting.add_invoice %}
-      <a class="btn btn-secondary" href="/fatture/add/">Aggiungi fattura</a>
+      <a class="btn btn-secondary" href="{% url "invoices:add" %}">Aggiungi fattura</a>
     {% endif %}
   </div>
 </div>
