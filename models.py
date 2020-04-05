@@ -24,6 +24,7 @@ class Invoice(models.Model):
 
     def get_total(self):
         return self.amount + self.security + self.vat
+    get_total.short_description = 'Importo'
 
     class Meta:
         verbose_name = 'Fattura'
