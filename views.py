@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView
 from django.views.generic.dates import ArchiveIndexView
@@ -31,3 +31,8 @@ class InvoiceDeleteView(LoginRequiredMixin, FormView):
     form_class = InvoiceDeleteForm
     success_url = reverse_lazy('invoices:index')
     template_name = 'accounting/invoice_delete_form.html'
+
+    def form_valid(self, form):
+        invoice = get_object_or_404(Invoice, id = self.kwargs['pk'])
+        invoice.delete()
+        return super(InvoiceDeleteView, self).form_valid(form)
