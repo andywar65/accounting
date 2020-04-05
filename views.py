@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 from django.views.generic.dates import ArchiveIndexView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -16,6 +16,11 @@ class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
     allow_empty = True
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
+    model = Invoice
+    form_class = InvoiceCreateForm
+    success_url = reverse_lazy('invoices:index')
+
+class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceCreateForm
     success_url = reverse_lazy('invoices:index')

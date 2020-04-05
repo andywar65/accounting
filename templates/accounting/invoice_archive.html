@@ -34,7 +34,7 @@
           {% else %}
             <td><span class="badge badge-pill badge-danger">Passiva</span></td>
           {% endif %}
-          <td>{{ invoice.number }}</td>
+          <td><a href="{% url 'invoices:change' invoice.id %}">{{ invoice.number }}</a></td>
           <td>{{ invoice.client }}</td>
           <td>{{ invoice.date|date:"d/m/Y" }}</td>
           <td>€{{ invoice.amount }}</td>
