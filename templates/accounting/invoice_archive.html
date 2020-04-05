@@ -23,7 +23,7 @@
           <th scope="col">Numero</th>
           <th scope="col">Cliente</th>
           <th scope="col">Data</th>
-          <th scope="col">Imponibile</th>
+          <th scope="col">Importo</th>
         </tr>
       </thead>
       <tbody>
@@ -37,7 +37,7 @@
           <td><a href="{% url 'invoices:change' invoice.id %}">{{ invoice.number }}</a></td>
           <td>{{ invoice.client }}</td>
           <td>{{ invoice.date|date:"d/m/Y" }}</td>
-          <td>€{{ invoice.amount }}</td>
+          <td>€{{ invoice.get_total }}</td>
         </tr>
         {% endfor %}
       <tbody>
