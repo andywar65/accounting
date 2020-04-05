@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ website.acro }} | Cancella la fattura{%endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <h4><strong>Cancella la fattura</strong></h4>
+    {% if perms.accounting.delete_invoice %}
+    <hr class="mb-4">
+    {% if form.errors %}
+      <p class="alert alert-danger" role="alert">
+        Per favore, correggi gli errori qui sotto.
+      </p>
+    {% endif %}
+    <form action="" method="post" novalidate>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form.delete|as_crispy_field }}
+        </div>
+      </div>
+      <hr class="mb-4">
+        <button class="btn btn-secondary btn-lg btn-block" type="submit">Invia</button>
+        <small>I campi con l'asterisco (*) sono obbligatori</small>
+      <hr class="mb-4">
+      {% csrf_token %}
+    </form>
+    {% else %}
+    <p>Non hai le credenziali per cancellare le fatture.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock content %}

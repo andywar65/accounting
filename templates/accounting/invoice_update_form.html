@@ -8,7 +8,15 @@
   <div class="col-md-2"></div>
   <div class="col-md-8">
     <h4><strong>Modifica una fattura</strong></h4>
-    <p>Ciao {{ user.get_short_name }}, modifica i dati della fattura e poi invia.</p>
+    {% if perms.accounting.change_invoice %}
+    <div class="row">
+      <div class="col col-md-8">
+        Ciao {{ user.get_short_name }}, modifica i dati della fattura e poi invia.
+      </div>
+      <div class="col col-md-4">
+        <a class="btn btn-danger" href="{% url 'invoices:delete' object.id %}">Cancella</a>
+      </div>
+    </div>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
@@ -23,6 +31,9 @@
         <hr class="mb-4">
       {% csrf_token %}
     </form>
+    {% else %}
+    Non hai le credenziali per modificare le fatture.
+    {% endif %}
   </div>
 </div>
 {% endblock content %}
