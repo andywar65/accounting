@@ -24,3 +24,4 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceCreateForm
     success_url = reverse_lazy('invoices:index')
+    template_name = 'accounting/invoice_update_form.html'
