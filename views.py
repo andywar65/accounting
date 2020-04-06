@@ -16,7 +16,22 @@ class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
     paginate_by = 50
     allow_empty = True
 
-class InvoiceYearArchiveView(LoginRequiredMixin, YearArchiveView):
+class ChartMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        active = context['all_invoices'].filter(active = True)
+        passive = context['all_invoices'].filter(active = False)
+        sum = 0
+        for inv in active:
+            sum += inv.get_total()
+        context['active_sum'] = sum
+        sum = 0
+        for inv in passive:
+            sum += inv.get_total()
+        context['passive_sum'] = sum
+        return context
+
+class InvoiceYearArchiveView(LoginRequiredMixin, ChartMixin, YearArchiveView):
     model = Invoice
     make_object_list = True
     date_field = 'date'
