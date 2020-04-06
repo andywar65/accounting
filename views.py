@@ -40,7 +40,7 @@ class InvoiceYearArchiveView(LoginRequiredMixin, ChartMixin, YearArchiveView):
     year_format = '%Y'
     allow_empty = True
 
-class InvoiceMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
+class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
     model = Invoice
     date_field = 'date'
     allow_future = True

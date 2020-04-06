@@ -49,15 +49,7 @@
     </div>
 {% endif %}
 <hr class="mb-4">
-<div class="row">
-  <div class="col col-md-6">
-    <span class="badge badge-pill badge-success">Totale attive</span> = €{{ active_sum }}
-  </div>
-  <div class="col col-md-6">
-    <span class="badge badge-pill badge-danger">Totale passive</span> = €{{ passive_sum }}
-  </div>
-</div>
-<hr class="mb-4">
+{% include "accounting/invoice_charts.html" %}
 <nav aria-label="Page navigation container">
   <ul class="pagination justify-content-center">
     {% if previous_year %}
