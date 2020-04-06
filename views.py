@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView
-from django.views.generic.dates import ArchiveIndexView
+from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
+    MonthArchiveView )
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Invoice
@@ -13,6 +14,24 @@ class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
     allow_future = True
     context_object_name = 'all_invoices'
     paginate_by = 50
+    allow_empty = True
+
+class InvoiceYearArchiveView(LoginRequiredMixin, YearArchiveView):
+    model = Invoice
+    make_object_list = True
+    date_field = 'date'
+    allow_future = True
+    context_object_name = 'all_invoices'
+    year_format = '%Y'
+    allow_empty = True
+
+class InvoiceMonthArchiveView(LoginRequiredMixin, MonthArchiveView):
+    model = Invoice
+    date_field = 'date'
+    allow_future = True
+    context_object_name = 'all_invoices'
+    year_format = '%Y'
+    month_format = '%m'
     allow_empty = True
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
