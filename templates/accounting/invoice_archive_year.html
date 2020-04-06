@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ website.acro }} | Fatture {{ year|date:"Y" }}{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-4">
+    <h4><strong>Lista delle fatture del {{ year|date:"Y" }}</strong></h4>
+  </div>
+  <div class="col col-md-8 text-right">
+    {% if perms.accounting.add_invoice %}
+      <a class="btn btn-secondary" href="{% url "invoices:add" %}">Aggiungi fattura</a>
+    {% endif %}
+  </div>
+</div>
+<hr class="mb-4">
+{% if perms.accounting.view_invoice and all_invoices %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">Numero</th>
+          <th scope="col">Cliente</th>
+          <th scope="col">Data</th>
+          <th scope="col">Importo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in all_invoices %}
+        <tr>
+          {% if invoice.active %}
+            <td><span class="badge badge-pill badge-success">Attiva</span></td>
+          {% else %}
+            <td><span class="badge badge-pill badge-danger">Passiva</span></td>
+          {% endif %}
+          <td><a href="{% url 'invoices:change' invoice.id %}">{{ invoice.number }}</a></td>
+          <td>{{ invoice.client }}</td>
+          <td>{{ invoice.date|date:"d/m/Y" }}</td>
+          <td>€{{ invoice.get_total }}</td>
+        </tr>
+        {% endfor %}
+      <tbody>
+    </table>
+  </div>
+{% else %}
+    <div class="col-md-12">
+        <p>Non ci sono fatture da mostrare.</p>
+    </div>
+{% endif %}
+<hr class="mb-4">
+<nav aria-label="Page navigation container">
+  <ul class="pagination justify-content-center">
+    {% if previous_year %}
+    <li><a href="/fatture/{{ previous_year|date:"Y" }}" class="page-link">&laquo; PRECEDENTE </a></li>
+    {% endif %}
+    {% if next_year %}
+    <li><a href="/fatture/{{ next_year|date:"Y" }}" class="page-link"> SUCCESSIVO &raquo;</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock content %}
