@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView
@@ -21,11 +22,11 @@ class ChartMixin:
         context = super().get_context_data(**kwargs)
         active = context['all_invoices'].filter(active = True)
         passive = context['all_invoices'].filter(active = False)
-        sum = 0
+        sum = Decimal('0.00')
         for inv in active:
             sum += inv.get_total()
         context['active_sum'] = sum
-        sum = 0
+        sum = Decimal('0.00')
         for inv in passive:
             sum += inv.get_total()
         context['passive_sum'] = sum

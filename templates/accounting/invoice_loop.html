@@ -20,7 +20,7 @@
         <td><a href="{% url 'invoices:change' invoice.id %}">{{ invoice.number }}</a></td>
         <td>{{ invoice.client }}</td>
         <td>{{ invoice.date|date:"d/m/Y" }}</td>
-        <td>€{{ invoice.get_total }}</td>
+        <td>€ {{ invoice.get_total }}</td>
       </tr>
       {% endfor %}
     <tbody>
