@@ -3,6 +3,7 @@
 {% block title %}{{ website.acro }} | Fatture {{ year|date:"Y" }}{% endblock title %}
 
 {% block content %}
+<a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a>
 <div class="row">
   <div class="col col-md-4">
     <h4><strong>Lista delle fatture del {{ year|date:"Y" }}</strong></h4>
