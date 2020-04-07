@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Invoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm
+from .choices import CAT
 
 class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
     model = Invoice
@@ -22,14 +23,49 @@ class ChartMixin:
         context = super().get_context_data(**kwargs)
         active = context['all_invoices'].filter(active = True)
         passive = context['all_invoices'].filter(active = False)
+        choices = CAT
+        #total active invoices
         sum = Decimal('0.00')
         for inv in active:
             sum += inv.get_total()
         context['active_sum'] = sum
+        #total passive invoices
         sum = Decimal('0.00')
         for inv in passive:
             sum += inv.get_total()
         context['passive_sum'] = sum
+        #total active invoices by category
+        active_cat = {}
+        active_left = Decimal('0.00')
+        for ch in choices:
+            if ch[0].startswith('A'):
+                act_cat = active.filter(category = ch[0])
+                sum = Decimal('0.00')
+                for act in act_cat:
+                    sum += act.get_total()
+                active_cat[ch[1]] = (sum,
+                    round(sum/context['active_sum']*100, 2))
+                active_left += sum
+            left = context['active_sum'] - active_left
+            active_cat['Altro'] = (left,
+                round(left/context['active_sum']*100, 2))
+        context['active_cat'] = active_cat
+        #total active invoices by category
+        passive_cat = {}
+        passive_left = Decimal('0.00')
+        for ch in choices:
+            if ch[0].startswith('P'):
+                pass_cat = passive.filter(category = ch[0])
+                sum = Decimal('0.00')
+                for pasv in pass_cat:
+                    sum += pasv.get_total()
+                passive_cat[ch[1]] = (sum,
+                    round(sum/context['passive_sum']*100, 2))
+                passive_left += sum
+            left = context['passive_sum'] - passive_left
+            passive_cat['Altro'] = (left,
+                round(left/context['passive_sum']*100, 2))
+        context['passive_cat'] = passive_cat
         return context
 
 class InvoiceYearArchiveView(LoginRequiredMixin, ChartMixin, YearArchiveView):

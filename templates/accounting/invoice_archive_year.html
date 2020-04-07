@@ -17,7 +17,10 @@
 <hr class="mb-4">
 {% if perms.accounting.view_invoice and all_invoices %}
   {% include "accounting/invoice_sum.html" %}
+  <hr class="mb-4">
   {% include "accounting/invoice_loop.html" %}
+  <hr class="mb-4">
+  {% include "accounting/invoice_charts.html" %}
   <hr class="mb-4">
 {% else %}
   <div class="col-md-12">

@@ -1,9 +1,12 @@
-<div class="row">
-  <div class="col col-md-6 text-center">
-    <span class="badge badge-pill badge-success">Totale attive</span> = € {{ active_sum }}
-  </div>
-  <div class="col col-md-6 text-center">
-    <span class="badge badge-pill badge-danger">Totale passive</span> = € {{ passive_sum }}
-  </div>
-</div>
-<hr class="mb-4">
+<h5>Attive per categoria</h5>
+<ul>
+  {% for active, data in active_cat.items %}
+    <li>{{ active }} = € {{ data.0 }} ({{ data.1 }}%)</li>
+  {% endfor %}
+</ul>
+<h5>Passive per categoria</h5>
+<ul>
+  {% for passive, data in passive_cat.items %}
+    <li>{{ passive }} = € {{ data.0 }} ({{ data.1 }}%)</li>
+  {% endfor %}
+</ul>
