@@ -16,14 +16,15 @@
 </div>
 <hr class="mb-4">
 {% if perms.accounting.view_invoice and all_invoices %}
+  {% include "accounting/invoice_sum.html" %}
   {% include "accounting/invoice_loop.html" %}
-{% else %}
-    <div class="col-md-12">
-        <p>Non ci sono fatture da mostrare.</p>
-    </div>
-{% endif %}
 <hr class="mb-4">
-{% include "accounting/invoice_charts.html" %}
+{% else %}
+  <div class="col-md-12">
+      <p>Non ci sono fatture da mostrare.</p>
+  </div>
+  <hr class="mb-4">
+{% endif %}
 <nav aria-label="Page navigation container">
   <ul class="pagination justify-content-center">
     {% if previous_month %}
