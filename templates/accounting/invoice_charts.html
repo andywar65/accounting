@@ -27,7 +27,7 @@
         data.addColumn('string', 'Categoria');
         data.addColumn('number', '%');
         data.addRows([{% for active, data in active_cat.items %}
-          ['{{ active }}', {{ data.0 }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
+          ['{{ active }}', {{ data }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
         ]);
 
         // Set chart options
