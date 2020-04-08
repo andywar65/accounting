@@ -57,12 +57,10 @@ class ChartMixin:
                 sum = Decimal('0.00')
                 for pasv in pass_cat:
                     sum += pasv.get_total()
-                passive_cat[ch[1]] = (sum,
-                    round(sum/context['passive_sum']*100, 2))
+                passive_cat[ch[1]] = round(sum, 0)
                 passive_left += sum
             left = context['passive_sum'] - passive_left
-            passive_cat['Altro'] = (left,
-                round(left/context['passive_sum']*100, 2))
+            passive_cat['X-Altro'] = round(left, 0)
         context['passive_cat'] = passive_cat
         return context
 
