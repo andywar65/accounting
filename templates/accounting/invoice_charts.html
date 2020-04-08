@@ -1,12 +1,43 @@
 <h5>Attive per categoria</h5>
-<ul>
-  {% for active, data in active_cat.items %}
-    <li>{{ active }} = € {{ data.0 }} ({{ data.1 }}%)</li>
-  {% endfor %}
-</ul>
+<!--Div that will hold the pie chart-->
+    <div id="chart_act"></div>
+
 <h5>Passive per categoria</h5>
 <ul>
   {% for passive, data in passive_cat.items %}
     <li>{{ passive }} = € {{ data.0 }} ({{ data.1 }}%)</li>
   {% endfor %}
 </ul>
+{% block extra-js %}
+<script type="text/javascript">
+
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Categoria');
+        data.addColumn('number', '%');
+        data.addRows([{% for active, data in active_cat.items %}
+          ['{{ active }}', {{ data.0 }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
+        ]);
+
+        // Set chart options
+        var options = {'title':'',
+                       'width':500,
+                       'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_act'));
+        chart.draw(data, options);
+      }
+    </script>
+{% endblock extra-js %}

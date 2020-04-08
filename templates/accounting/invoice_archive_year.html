@@ -2,6 +2,10 @@
 
 {% block title %}{{ website.acro }} | Fatture {{ year|date:"Y" }}{% endblock title %}
 
+{% block extra-head %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% endblock extra-head %}
+
 {% block content %}
 <a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a>
 <div class="row">
