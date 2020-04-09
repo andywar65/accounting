@@ -112,11 +112,11 @@ class InvoiceDeleteView(LoginRequiredMixin, FormView):
     form_class = InvoiceDeleteForm
     template_name = 'accounting/invoice_delete_form.html'
 
-    #object has been deleted
-    def get_success_url(self):
-        return f'/fatture?deleted={self.kwargs['pk']}'
-
     def form_valid(self, form):
         invoice = get_object_or_404(Invoice, id = self.kwargs['pk'])
+        self.number = invoice.number
         invoice.delete()
         return super(InvoiceDeleteView, self).form_valid(form)
+
+    def get_success_url(self):
+        return f'/fatture?deleted={self.number}'
