@@ -38,12 +38,12 @@ class ChartMixin:
         sum = Decimal('0.00')
         for inv in active:
             sum += inv.get_total()
-        context['active_sum'] = sum
+        context['active_sum'] = round(sum, 0)
         #total passive invoices
         sum = Decimal('0.00')
         for inv in passive:
             sum += inv.get_total()
-        context['passive_sum'] = sum
+        context['passive_sum'] = round(sum, 0)
         #total active invoices by category
         active_cat = {}
         active_left = Decimal('0.00')

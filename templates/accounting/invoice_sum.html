@@ -1,8 +1,85 @@
 <div class="row">
-  <div class="col col-md-6 text-center">
-    <span class="badge badge-pill badge-success">Totale attive</span> = € {{ active_sum }}
-  </div>
-  <div class="col col-md-6 text-center">
-    <span class="badge badge-pill badge-danger">Totale passive</span> = € {{ passive_sum }}
+  <div class="col col-md-3"></div>
+  <div class="col col-md-6">
+    <h4>Totali</h4>
+    <div id="chart_total"></div>
   </div>
 </div>
+<div class="row">
+  <div class="col col-md-6">
+    <h4>Attive per categoria</h4>
+    <div id="chart_act"></div>
+  </div>
+  <div class="col col-md-6">
+    <h4>Passive per categoria</h4>
+    <div id="chart_pass"></div>
+  </div>
+</div>
+{% block extra-js %}
+<script type="text/javascript">
+
+      google.charts.load('current', {'packages':['corechart']});
+
+      google.charts.setOnLoadCallback(drawTotalChart);
+      google.charts.setOnLoadCallback(drawActiveChart);
+      google.charts.setOnLoadCallback(drawPassiveChart);
+
+      function drawTotalChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Categoria');
+        data.addColumn('number', '%');
+        data.addRows([
+          ['Passive', {{ passive_sum }}],
+          ['Attive', {{ active_sum }}]
+        ]);
+
+        var options = {'title':'',
+                       'width':500,
+                       'height':300,
+                       'colors': ['#dc3545', '#28a745']
+                       };
+        var chart = new google.visualization.PieChart(document.getElementById('chart_total'));
+        chart.draw(data, options);
+      }
+
+      function drawActiveChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Categoria');
+        data.addColumn('number', '%');
+        data.addRows([{% for active, data in active_cat.items %}
+          ['{{ active }}', {{ data }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
+        ]);
+
+        var options = {'title':'',
+                       'width':500,
+                       'height':300,
+                       'colors': ['#28a745', '#38af46', '#48b749', '#64bf59', '#7ec769',
+                          '#96ce7a','#acd58b', '#c0dc9d', '#d1e3ae', '#e0eac0', '#edf0d2']
+                       };
+        var chart = new google.visualization.PieChart(document.getElementById('chart_act'));
+        chart.draw(data, options);
+      }
+
+      function drawPassiveChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Categoria');
+        data.addColumn('number', '%');
+        data.addRows([{% for passive, data in passive_cat.items %}
+          ['{{ passive }}', {{ data }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
+        ]);
+
+        var options = {'title':'',
+                       'width':500,
+                       'height':300,
+                       'colors': ['#dc3545', '#e04464', '#e45381', '#e8629c', '#ec71b4',
+                            '#ef81c9', '#f291db', '#f5a1eb', '#f7b2f7', '#f4c2f9', '#f3d3fb']
+                      };
+
+        var chart = new google.visualization.PieChart(document.getElementById('chart_pass'));
+        chart.draw(data, options);
+      }
+    </script>
+{% endblock extra-js %}

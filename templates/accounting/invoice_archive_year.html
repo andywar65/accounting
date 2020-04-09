@@ -7,7 +7,10 @@
 {% endblock extra-head %}
 
 {% block content %}
-<a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a>
+<ul>
+  <li><a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a></li>
+  <li><a href="#charts">Vai ai grafici</a></li>
+</ul>
 <div class="row">
   <div class="col col-md-4">
     <h4><strong>Lista delle fatture del {{ year|date:"Y" }}</strong></h4>
@@ -20,11 +23,9 @@
 </div>
 <hr class="mb-4">
 {% if perms.accounting.view_invoice and all_invoices %}
-  {% include "accounting/invoice_sum.html" %}
-  <hr class="mb-4">
   {% include "accounting/invoice_loop.html" %}
-  <hr class="mb-4">
-  {% include "accounting/invoice_charts.html" %}
+  <hr class="mb-4" id="charts">
+  {% include "accounting/invoice_sum.html" %}
   <hr class="mb-4">
 {% else %}
   <div class="col-md-12">
