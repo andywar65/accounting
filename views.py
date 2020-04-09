@@ -22,6 +22,10 @@ class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
         context = super().get_context_data(**kwargs)
         if 'created' in self.request.GET:
             context['created'] = self.request.GET['created']
+        elif 'modified' in self.request.GET:
+            context['modified'] = self.request.GET['modified']
+        elif 'deleted' in self.request.GET:
+            context['deleted'] = self.request.GET['deleted']
         return context
 
 class ChartMixin:
@@ -91,22 +95,26 @@ class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceCreateForm
-    #success_url = '/fatture?created=True' # reverse_lazy('invoices:index')
 
     def get_success_url(self):
-        return '/fatture?created=' + self.object.number
+        return f'/fatture?created={self.object.number}'
 
 class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceCreateForm
-    success_url = reverse_lazy('invoices:index')
     template_name = 'accounting/invoice_update_form.html'
+
+    def get_success_url(self):
+        return f'/fatture?modified={self.object.number}'
 
 class InvoiceDeleteView(LoginRequiredMixin, FormView):
     model = Invoice
     form_class = InvoiceDeleteForm
-    success_url = reverse_lazy('invoices:index')
     template_name = 'accounting/invoice_delete_form.html'
+
+    #object has been deleted
+    def get_success_url(self):
+        return f'/fatture?deleted={self.kwargs['pk']}'
 
     def form_valid(self, form):
         invoice = get_object_or_404(Invoice, id = self.kwargs['pk'])
