@@ -91,7 +91,10 @@ class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceCreateForm
-    success_url = '/fatture?created=True' # reverse_lazy('invoices:index')
+    #success_url = '/fatture?created=True' # reverse_lazy('invoices:index')
+
+    def get_success_url(self):
+        return '/fatture?created=' + self.object.number
 
 class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
