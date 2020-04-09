@@ -18,6 +18,12 @@ class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
     paginate_by = 50
     allow_empty = True
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'created' in self.request.GET:
+            context['created'] = self.request.GET['created']
+        return context
+
 class ChartMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,7 +91,7 @@ class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceCreateForm
-    success_url = reverse_lazy('invoices:index')
+    success_url = '/fatture?created=True' # reverse_lazy('invoices:index')
 
 class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
