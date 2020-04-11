@@ -27,16 +27,7 @@
     <form action="" method="post" class="needs-validation" novalidate>
         {{ form|crispy }}
         <hr class="mb-4">
-          <div class="row">
-            <div class="col col-md-6">
-              <button class="btn btn-secondary btn-lg btn-block" type="submit">Salva</button>
-            </div>
-            <div class="col col-md-6">
-              <button class="btn btn-light btn-lg btn-block" type="submit" name="add_another">
-                Salva e aggiungi un'altra</button>
-            </div>
-          </div>
-          <small>I campi con l'asterisco (*) sono obbligatori</small>
+          {% include "accounting/invoice_buttons.html" %}
         <hr class="mb-4">
       {% csrf_token %}
     </form>
