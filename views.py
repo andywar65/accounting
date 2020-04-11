@@ -96,16 +96,38 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice
     form_class = InvoiceCreateForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'created' in self.request.GET:
+            context['created'] = self.request.GET['created']
+        elif 'modified' in self.request.GET:
+            context['modified'] = self.request.GET['modified']
+        return context
+
     def get_success_url(self):
-        return f'/fatture?created={self.object.number}'
+        if 'add_another' in self.request.POST:
+            return f'/fatture/add?created={self.object.number}'
+        else:
+            return f'/fatture?created={self.object.number}'
 
 class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     model = Invoice
     form_class = InvoiceCreateForm
     template_name = 'accounting/invoice_update_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'created' in self.request.GET:
+            context['created'] = self.request.GET['created']
+        elif 'modified' in self.request.GET:
+            context['modified'] = self.request.GET['modified']
+        return context
+
     def get_success_url(self):
-        return f'/fatture?modified={self.object.number}'
+        if 'add_another' in self.request.POST:
+            return f'/fatture/add?modified={self.object.number}'
+        else:
+            return f'/fatture?modified={self.object.number}'
 
 class InvoiceDeleteView(LoginRequiredMixin, FormView):
     model = Invoice

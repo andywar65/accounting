@@ -4,6 +4,21 @@
 {% block title %}{{ website.acro }} | Modifica fattura{% endblock title %}
 
 {% block content %}
+{% if created %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    Fattura <strong>{{ created }}</strong> creata con successo!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{% elif modified %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    Fattura <strong>{{ modified }}</strong> modificata con successo!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{% endif %}
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
@@ -26,7 +41,15 @@
     <form action="" method="post" class="needs-validation" novalidate>
         {{ form|crispy }}
         <hr class="mb-4">
-          <button class="btn btn-secondary btn-lg btn-block" type="submit">Invia</button>
+          <div class="row">
+            <div class="col col-md-6">
+              <button class="btn btn-secondary btn-lg btn-block" type="submit">Salva</button>
+            </div>
+            <div class="col col-md-6">
+              <button class="btn btn-light btn-lg btn-block" type="submit" name="add_another">
+                Salva e aggiungi un'altra</button>
+            </div>
+          </div>
           <small>I campi con l'asterisco (*) sono obbligatori</small>
         <hr class="mb-4">
       {% csrf_token %}
