@@ -7,9 +7,9 @@
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
-    <h4><strong>Aggiungi una fattura</strong></h4>
+    <h4><strong>Aggiungi/modifica una fattura</strong></h4>
     {% if perms.accounting.add_invoice %}
-    <p>Ciao {{ user.get_short_name }}, inserisci qui i dati della fattura e poi invia.</p>
+    <p>Ciao {{ user.get_short_name }}, inserisci/modifica qui i dati della fattura e poi invia.</p>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
@@ -19,9 +19,17 @@
     <form action="" method="post" class="needs-validation" novalidate>
         {{ form|crispy }}
         <hr class="mb-4">
-          <button class="btn btn-secondary btn-lg btn-block" type="submit">Invia</button>
+          <div class="row">
+            <div class="col col-md-6">
+              <button class="btn btn-secondary btn-lg btn-block" type="submit">Salva</button>
+            </div>
+            <div class="col col-md-6">
+              <button class="btn btn-light btn-lg btn-block" type="submit" name="add_another">
+                Salva e aggiungi un'altra</button>
+            </div>
+          </div>
           <small>I campi con l'asterisco (*) sono obbligatori</small>
-        <hr class="mb-4">
+          <hr class="mb-4">
       {% csrf_token %}
     </form>
     {% else %}
