@@ -92,9 +92,7 @@ class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
     month_format = '%m'
     allow_empty = True
 
-class InvoiceCreateView(LoginRequiredMixin, CreateView):
-    model = Invoice
-    form_class = InvoiceCreateForm
+class AddAnotherMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -103,6 +101,10 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
         elif 'modified' in self.request.GET:
             context['modified'] = self.request.GET['modified']
         return context
+
+class InvoiceCreateView(LoginRequiredMixin, AddAnotherMixin, CreateView):
+    model = Invoice
+    form_class = InvoiceCreateForm
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
@@ -110,18 +112,10 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
         else:
             return f'/fatture?created={self.object.number}'
 
-class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
+class InvoiceUpdateView(LoginRequiredMixin, AddAnotherMixin, UpdateView):
     model = Invoice
     form_class = InvoiceCreateForm
     template_name = 'accounting/invoice_update_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if 'created' in self.request.GET:
-            context['created'] = self.request.GET['created']
-        elif 'modified' in self.request.GET:
-            context['modified'] = self.request.GET['modified']
-        return context
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
