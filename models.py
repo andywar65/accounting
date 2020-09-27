@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.timezone import now
+
+from filebrowser.fields import FileBrowseField
+
 from .choices import CAT
 
 class Invoice(models.Model):
@@ -29,4 +32,17 @@ class Invoice(models.Model):
     class Meta:
         verbose_name = 'Fattura'
         verbose_name_plural = 'Fatture'
+        ordering = ('-date', )
+
+class CSVInvoice(models.Model):
+    date = models.DateTimeField('Data', default = now, )
+    csv = FileBrowseField("File CSV", max_length=200,
+        extensions=[".csv", ], directory="invoices/csv/",)
+
+    def __str__(self):
+        return self.date
+
+    class Meta:
+        verbose_name = 'File CSV'
+        verbose_name_plural = 'File CSV'
         ordering = ('-date', )
