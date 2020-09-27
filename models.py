@@ -40,7 +40,7 @@ class CSVInvoice(models.Model):
         extensions=[".csv", ], directory="invoices/csv/",)
 
     def __str__(self):
-        return self.date
+        return self.date.strftime("%Y-%m-%d %H:%M:%S")
 
     class Meta:
         verbose_name = 'File CSV'
