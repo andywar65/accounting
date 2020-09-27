@@ -4,14 +4,15 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView
 from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
     MonthArchiveView )
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
-from .models import Invoice
+from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm
 from .choices import CAT
 
-class InvoiceArchiveIndexView(LoginRequiredMixin, ArchiveIndexView):
+class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
     model = Invoice
+    permission_required = 'accounting.view_invoice'
     date_field = 'date'
     allow_future = True
     context_object_name = 'all_invoices'
@@ -74,8 +75,9 @@ class ChartMixin:
         context['passive_cat'] = passive_cat
         return context
 
-class InvoiceYearArchiveView(LoginRequiredMixin, ChartMixin, YearArchiveView):
+class InvoiceYearArchiveView(PermissionRequiredMixin, ChartMixin, YearArchiveView):
     model = Invoice
+    permission_required = 'accounting.view_invoice'
     make_object_list = True
     date_field = 'date'
     allow_future = True
@@ -83,8 +85,9 @@ class InvoiceYearArchiveView(LoginRequiredMixin, ChartMixin, YearArchiveView):
     year_format = '%Y'
     allow_empty = True
 
-class InvoiceMonthArchiveView(LoginRequiredMixin, ChartMixin, MonthArchiveView):
+class InvoiceMonthArchiveView(PermissionRequiredMixin, ChartMixin, MonthArchiveView):
     model = Invoice
+    permission_required = 'accounting.view_invoice'
     date_field = 'date'
     allow_future = True
     context_object_name = 'all_invoices'
@@ -102,8 +105,9 @@ class AddAnotherMixin:
             context['modified'] = self.request.GET['modified']
         return context
 
-class InvoiceCreateView(LoginRequiredMixin, AddAnotherMixin, CreateView):
+class InvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
     model = Invoice
+    permission_required = 'accounting.add_invoice'
     form_class = InvoiceCreateForm
 
     def get_success_url(self):
@@ -112,8 +116,9 @@ class InvoiceCreateView(LoginRequiredMixin, AddAnotherMixin, CreateView):
         else:
             return f'/fatture?created={self.object.number}'
 
-class InvoiceUpdateView(LoginRequiredMixin, AddAnotherMixin, UpdateView):
+class InvoiceUpdateView(PermissionRequiredMixin, AddAnotherMixin, UpdateView):
     model = Invoice
+    permission_required = 'accounting.change_invoice'
     form_class = InvoiceCreateForm
     template_name = 'accounting/invoice_update_form.html'
 
@@ -123,8 +128,9 @@ class InvoiceUpdateView(LoginRequiredMixin, AddAnotherMixin, UpdateView):
         else:
             return f'/fatture?modified={self.object.number}'
 
-class InvoiceDeleteView(LoginRequiredMixin, FormView):
+class InvoiceDeleteView(PermissionRequiredMixin, FormView):
     model = Invoice
+    permission_required = 'accounting.delete_invoice'
     form_class = InvoiceDeleteForm
     template_name = 'accounting/invoice_delete_form.html'
 
