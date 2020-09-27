@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from .models import Invoice
+from .models import Invoice, CSVInvoice
 
 class InvoiceCreateForm(ModelForm):
 
@@ -27,3 +27,9 @@ class InvoiceCreateForm(ModelForm):
 class InvoiceDeleteForm(forms.Form):
     delete = forms.BooleanField( label="Cancella la fattura", required = True,
         help_text = """Attento, l'operazione non è reversibile.""")
+
+class CSVInvoiceCreateForm(ModelForm):
+
+    class Meta:
+        model = CSVInvoice
+        fields = ('csv', )

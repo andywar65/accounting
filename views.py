@@ -7,7 +7,7 @@ from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
 from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from .models import Invoice, CSVInvoice
-from .forms import InvoiceCreateForm, InvoiceDeleteForm
+from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
 from .choices import CAT
 
 class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
@@ -142,3 +142,9 @@ class InvoiceDeleteView(PermissionRequiredMixin, FormView):
 
     def get_success_url(self):
         return f'/fatture?deleted={self.number}'
+
+class CSVInvoiceCreateView(PermissionRequiredMixin, CreateView):
+    model = CSVInvoice
+    permission_required = 'accounting.add_csvinvoice'
+    form_class = CSVInvoiceCreateForm
+    success_url = '/fatture'
