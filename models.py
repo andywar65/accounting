@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
 
-from filebrowser.fields import FileBrowseField
-
 from .choices import CAT
 
 class Invoice(models.Model):
@@ -36,8 +34,8 @@ class Invoice(models.Model):
 
 class CSVInvoice(models.Model):
     date = models.DateTimeField('Data', default = now, )
-    csv = FileBrowseField("File CSV", max_length=200,
-        extensions=[".csv", ], directory="invoices/csv/",)
+    csv = models.FileField("File CSV", max_length=200,
+        upload_to="uploads/invoices/csv/",)
 
     def __str__(self):
         return self.date.strftime("%Y-%m-%d %H:%M:%S")
