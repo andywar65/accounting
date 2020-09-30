@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
+from django.core.validators import FileExtensionValidator
 
 from .choices import CAT
 
@@ -35,7 +36,8 @@ class Invoice(models.Model):
 class CSVInvoice(models.Model):
     date = models.DateTimeField('Data', default = now, )
     csv = models.FileField("File CSV", max_length=200,
-        upload_to="uploads/invoices/csv/",)
+        upload_to="uploads/invoices/csv/",
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])])
 
     def __str__(self):
         return self.date.strftime("%Y-%m-%d %H:%M:%S")

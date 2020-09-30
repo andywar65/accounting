@@ -30,8 +30,6 @@ class InvoiceDeleteForm(forms.Form):
 
 class CSVInvoiceCreateForm(ModelForm):
 
-    #needs validation
-
     class Meta:
         model = CSVInvoice
         fields = ('csv', )
