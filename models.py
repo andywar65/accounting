@@ -1,4 +1,5 @@
 import csv
+import os
 from datetime import datetime
 
 from django.db import models
@@ -79,8 +80,12 @@ class CSVInvoice(models.Model):
         except:
             pass
 
+    def get_filename(self):
+        return os.path.basename(self.csv.name)
+    get_filename.short_description = 'Nome file'
+
     def __str__(self):
-        return self.date.strftime("%Y-%m-%d %H:%M:%S")
+        return 'File CSV - %s' % (self.id)
 
     class Meta:
         verbose_name = 'File CSV'

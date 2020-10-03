@@ -7,4 +7,4 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 @admin.register(CSVInvoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ('date', )
+    list_display = ('get_filename', 'date', )
