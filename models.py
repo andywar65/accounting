@@ -54,7 +54,6 @@ class CSVInvoice(models.Model):
     def save(self, *args, **kwargs):
         super(CSVInvoice, self).save(*args, **kwargs)
         #this exception catches file anomalies
-<<<<<<< HEAD
         try:
             with open(self.csv.path, newline='', encoding='latin-1') as csvfile:
                 reader = csv.reader(csvfile)
@@ -79,32 +78,6 @@ class CSVInvoice(models.Model):
                         pass
         except:
             pass
-=======
-        #try:
-        with open(self.csv.path, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                #this exception catches input anomalies
-                #try:
-                obj, created = Invoice.objects.update_or_create(
-                    number = row[0],
-                    date = datetime.strptime(row[3], '%d/%m/%y'),
-                    defaults = {
-                        'client': row[1],
-                        'active': bool(row[2]),
-                        'descr': row[4],
-                        'amount': prepare_float(row[5]),
-                        'security': prepare_float(row[6]),
-                        'vat': prepare_float(row[7]),
-                        'category': row[8],
-                        'paid': bool(row[9])
-                        }
-                    )
-                    #except:
-                        #pass
-        #except:
-            #pass
->>>>>>> 33d4de4dc72efe727f5daba350fd1e2347c1cbd0
 
     def __str__(self):
         return self.date.strftime("%Y-%m-%d %H:%M:%S")
