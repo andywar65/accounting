@@ -51,8 +51,12 @@ class CSVInvoice(models.Model):
     csv = models.FileField("File CSV", max_length=200,
         upload_to="uploads/invoices/csv/",
         validators=[FileExtensionValidator(allowed_extensions=['csv'])])
+    created = models.IntegerField(default=0)
+    modified = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
+        self.created = 0
+        self.modified = 0
         super(CSVInvoice, self).save(*args, **kwargs)
         #this exception catches file anomalies
         try:
@@ -75,10 +79,16 @@ class CSVInvoice(models.Model):
                                 'paid': bool(row[9])
                                 }
                             )
+                        if created:
+                            self.created += 1
+                        else:
+                            self.modified += 1
                     except:
                         pass
         except:
             pass
+        #second save to pass created and modified
+        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def get_filename(self):
         return os.path.basename(self.csv.name)
