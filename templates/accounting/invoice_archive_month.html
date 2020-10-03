@@ -17,7 +17,7 @@
   </div>
   <div class="col col-md-8 text-right">
     {% if perms.accounting.add_invoice %}
-      <a class="btn btn-secondary" href="{% url "invoices:add" %}">Aggiungi fattura</a>
+      {% include "accounting/invoice_add.html" %}
     {% endif %}
   </div>
 </div>
