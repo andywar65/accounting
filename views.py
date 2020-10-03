@@ -27,6 +27,9 @@ class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
             context['modified'] = self.request.GET['modified']
         elif 'deleted' in self.request.GET:
             context['deleted'] = self.request.GET['deleted']
+        elif 'csv_created' in self.request.GET:
+            context['csv_created'] = self.request.GET['csv_created']
+            context['csv_modified'] = self.request.GET['csv_modified']
         return context
 
 class ChartMixin:
@@ -147,4 +150,6 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, CreateView):
     model = CSVInvoice
     permission_required = 'accounting.add_csvinvoice'
     form_class = CSVInvoiceCreateForm
-    success_url = '/fatture'
+
+    def get_success_url(self):
+        return f'/fatture?csv_created={self.object.created}&csv_modified={self.object.modified}'
