@@ -55,7 +55,7 @@ class CSVInvoice(models.Model):
         super(CSVInvoice, self).save(*args, **kwargs)
         #this exception catches file anomalies
         try:
-            with open(self.csv.path, newline='') as csvfile:
+            with open(self.csv.path, newline='', encoding='latin-1') as csvfile:
                 reader = csv.reader(csvfile)
                 for row in reader:
                     #this exception catches input anomalies
