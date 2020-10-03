@@ -36,6 +36,15 @@ class Invoice(models.Model):
         verbose_name_plural = 'Fatture'
         ordering = ('-date', )
 
+def prepare_float(value):
+    if value:
+        value = value.replace("€", "")
+        value = value.replace(",", ".")
+        value = value.replace(".", "", value.count(".") -1)
+    else:
+        value = '0'
+    return float(value)
+
 class CSVInvoice(models.Model):
     date = models.DateTimeField('Data', default = now, )
     csv = models.FileField("File CSV", max_length=200,
@@ -58,9 +67,9 @@ class CSVInvoice(models.Model):
                                 'client': row[1],
                                 'active': bool(row[2]),
                                 'descr': row[4],
-                                'amount': float(row[5]),
-                                'security': float(row[6]),
-                                'vat': float(row[7]),
+                                'amount': prepare_float(row[5]),
+                                'security': prepare_float(row[6]),
+                                'vat': prepare_float(row[7]),
                                 'category': row[8],
                                 'paid': bool(row[9])
                                 }
