@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import datetime
+import xmltodict
 
 from django.db import models
 from django.utils.timezone import now
@@ -54,10 +55,7 @@ class CSVInvoice(models.Model):
     created = models.IntegerField(default=0)
     modified = models.IntegerField(default=0)
 
-    def save(self, *args, **kwargs):
-        self.created = 0
-        self.modified = 0
-        super(CSVInvoice, self).save(*args, **kwargs)
+    def parse_csv(self):
         #this exception catches file anomalies
         try:
             with open(self.csv.path, newline='', encoding='latin-1') as csvfile:
@@ -86,6 +84,16 @@ class CSVInvoice(models.Model):
                     except:
                         pass
         except:
+            pass
+
+    def save(self, *args, **kwargs):
+        self.created = 0
+        self.modified = 0
+        super(CSVInvoice, self).save(*args, **kwargs)
+        ext = self.get_filename().split('.')[1]
+        if ext == 'csv':
+            self.parse_csv()
+        elif ext == 'xml':
             pass
         #second save to pass created and modified
         super(CSVInvoice, self).save(update_fields=['created', 'modified'])
