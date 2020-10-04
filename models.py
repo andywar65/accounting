@@ -85,6 +85,41 @@ class CSVInvoice(models.Model):
                         pass
         except:
             pass
+        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
+
+    def parse_xml(self):
+        with open(self.csv.path) as xmlfile:
+            dict = xmltodict.parse(xmlfile.read())
+            first_name = dict['ns2:FatturaElettronica']['FatturaElettronicaHeader']['CedentePrestatore']['DatiAnagrafici']['Anagrafica']['Nome']
+            last_name = dict['ns2:FatturaElettronica']['FatturaElettronicaHeader']['CedentePrestatore']['DatiAnagrafici']['Anagrafica']['Cognome']
+            date = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiGenerali']['DatiGeneraliDocumento']['Data']
+            number = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiGenerali']['DatiGeneraliDocumento']['Numero']
+            amount = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DatiRiepilogo']['ImponibileImporto']
+            vat = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DatiRiepilogo']['Imposta']
+            #descr = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DettaglioLinee']['NumeroLinea']['Descrizione']
+            #this exception catches input anomalies
+            try:
+                obj, created = Invoice.objects.update_or_create(
+                    number = number,
+                    date = datetime.strptime(date, '%Y-%m-%d'),
+                    defaults = {
+                        'client': first_name + ' ' + last_name,
+                        'active': False,
+                        'descr': '',
+                        'amount': float(amount),
+                        'security': 0,
+                        'vat': float(vat),
+                        'category': 'X',
+                        'paid': False
+                        }
+                    )
+                if created:
+                    self.created += 1
+                else:
+                    self.modified += 1
+            except:
+                pass
+            super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def save(self, *args, **kwargs):
         self.created = 0
@@ -94,9 +129,7 @@ class CSVInvoice(models.Model):
         if ext == 'csv':
             self.parse_csv()
         elif ext == 'xml':
-            pass
-        #second save to pass created and modified
-        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
+            self.parse_xml()
 
     def get_filename(self):
         return os.path.basename(self.csv.name)
