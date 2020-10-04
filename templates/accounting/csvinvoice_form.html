@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}{{ website.acro }} | Aggiungi CSV di fatture{% endblock title %}
+{% block title %}{{ website.acro }} | Aggiungi file{% endblock title %}
 
 {% block content %}
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
-    <h4><strong>Aggiungi un file CSV di fatture</strong></h4>
+    <h4><strong>Aggiungi un file CSV o XML</strong></h4>
     {% if perms.accounting.add_csvinvoice %}
-    <p>Ciao {{ user.get_short_name }}, carica il file CSV e poi invia.</p>
+    <p>Ciao {{ user.get_short_name }}, scegli il file e poi premi invio.
+      Il file CSV deve contenere <a href="{% static 'accounting/sample.csv' %}">
+      questi campi</a>, mentre l'XML è quello scaricabile assieme alla fattura elettronica.</p>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
@@ -29,7 +32,7 @@
       {% csrf_token %}
     </form>
     {% else %}
-    Non hai le credenziali per aggiungere file CSV di fatture.
+    Non hai le credenziali per aggiungere file di fatture.
     {% endif %}
   </div>
 </div>

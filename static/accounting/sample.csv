@@ -1,0 +1,3 @@
+numero,cliente,attiva,gg/mm/aa,descr,imponibile,contr,iva,cat,pagata
+12345,Client,yes,21/04/20,Outgoing invoice,"20,11",2,"4,42",A,yes
+54321,Me,,23/4/20,Incoming invoice,"12,1",,5,P,

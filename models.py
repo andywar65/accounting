@@ -48,9 +48,9 @@ def prepare_float(value):
 
 class CSVInvoice(models.Model):
     date = models.DateTimeField('Data', default = now, )
-    csv = models.FileField("File CSV", max_length=200,
+    csv = models.FileField("File CSV / XML", max_length=200,
         upload_to="uploads/invoices/csv/",
-        validators=[FileExtensionValidator(allowed_extensions=['csv'])])
+        validators=[FileExtensionValidator(allowed_extensions=['csv', 'xml'])])
     created = models.IntegerField(default=0)
     modified = models.IntegerField(default=0)
 
