@@ -5,6 +5,7 @@ from .models import Invoice, CSVInvoice
 class InvoiceAdmin(admin.ModelAdmin):
     list_display = ('number', 'client', 'active', 'date', 'get_total',
         'category', 'paid', )
+    list_editable = ('category', 'paid')
 
 @admin.register(CSVInvoice)
 class InvoiceAdmin(admin.ModelAdmin):

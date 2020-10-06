@@ -52,8 +52,8 @@ class CSVInvoice(models.Model):
     csv = models.FileField("File CSV / XML", max_length=200,
         upload_to="uploads/invoices/csv/",
         validators=[FileExtensionValidator(allowed_extensions=['csv', 'xml'])])
-    created = models.IntegerField(default=0)
-    modified = models.IntegerField(default=0)
+    created = models.IntegerField(default=0, editable=False)
+    modified = models.IntegerField(default=0, editable=False)
 
     def parse_csv(self):
         #this exception catches file anomalies
