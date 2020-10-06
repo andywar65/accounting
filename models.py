@@ -1,7 +1,7 @@
 import csv
 import os
 from datetime import datetime
-import xmltodict
+import xml.etree.ElementTree as ET
 
 from django.db import models
 from django.utils.timezone import now
@@ -88,38 +88,61 @@ class CSVInvoice(models.Model):
         super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def parse_xml(self):
-        with open(self.csv.path) as xmlfile:
-            dict = xmltodict.parse(xmlfile.read())
-            first_name = dict['ns2:FatturaElettronica']['FatturaElettronicaHeader']['CedentePrestatore']['DatiAnagrafici']['Anagrafica']['Nome']
-            last_name = dict['ns2:FatturaElettronica']['FatturaElettronicaHeader']['CedentePrestatore']['DatiAnagrafici']['Anagrafica']['Cognome']
-            date = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiGenerali']['DatiGeneraliDocumento']['Data']
-            number = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiGenerali']['DatiGeneraliDocumento']['Numero']
-            amount = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DatiRiepilogo']['ImponibileImporto']
-            vat = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DatiRiepilogo']['Imposta']
-            #descr = dict['ns2:FatturaElettronica']['FatturaElettronicaBody']['DatiBeniServizi']['DettaglioLinee']['NumeroLinea']['Descrizione']
-            #this exception catches input anomalies
-            try:
-                obj, created = Invoice.objects.update_or_create(
-                    number = number,
-                    date = datetime.strptime(date, '%Y-%m-%d'),
-                    defaults = {
-                        'client': first_name + ' ' + last_name,
-                        'active': False,
-                        'descr': '',
-                        'amount': float(amount),
-                        'security': 0,
-                        'vat': float(vat),
-                        'category': 'X',
-                        'paid': False
-                        }
-                    )
-                if created:
-                    self.created += 1
-                else:
-                    self.modified += 1
-            except:
-                pass
-            super(CSVInvoice, self).save(update_fields=['created', 'modified'])
+        tree = ET.parse(self.csv.path)
+        root = tree.getroot()
+        cp = root.find('.//CedentePrestatore')
+        if cp.find('.//Denominazione').text == 'Associazione Professionale Perilli':
+            active = True
+            category = 'A00'
+            cc = root.find('.//CessionarioCommittente')
+            if cc.find('.//Denominazione'):
+                client = cc.find('.//Denominazione').text
+            else:
+                client = (cc.find('.//Nome').text + ' ' +
+                    cc.find('.//Cognome').text)
+        else:
+            active = False
+            category = 'P00'
+            if cp.find('.//Denominazione'):
+                client = cp.find('.//Denominazione').text
+            else:
+                client = (cp.find('.//Nome').text + ' ' +
+                    cp.find('.//Cognome').text)
+        date = root.find('.//Data').text
+        number = root.find('.//Numero').text
+        security = 0
+        for sec in root.findall('.//ImportoContributoCassa'):
+            security += float(sec.text)
+        descr = ''
+        for dsc in root.findall('.//Descrizione'):
+            descr += dsc.text
+        amount = 0
+        for amnt in root.findall('.//PrezzoTotale'):
+            amount += float(amnt.text)
+        vat = root.find('.//Imposta').text
+        #this exception catches input anomalies
+        try:
+            obj, created = Invoice.objects.update_or_create(
+                number = number,
+                date = datetime.strptime(date, '%Y-%m-%d'),
+                defaults = {
+                    'client': client,
+                    'active': active,
+                    'descr': descr,
+                    'amount': amount,
+                    'security': security,
+                    'vat': float(vat),
+                    'category': category,
+                    'paid': False
+                    }
+                )
+            if created:
+                self.created += 1
+            else:
+                self.modified += 1
+        except:
+            pass
+        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def save(self, *args, **kwargs):
         self.created = 0
