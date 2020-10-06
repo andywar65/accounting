@@ -106,6 +106,9 @@ class AddAnotherMixin:
             context['created'] = self.request.GET['created']
         elif 'modified' in self.request.GET:
             context['modified'] = self.request.GET['modified']
+        elif 'csv_created' in self.request.GET:
+            context['csv_created'] = self.request.GET['csv_created']
+            context['csv_modified'] = self.request.GET['csv_modified']
         return context
 
 class InvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
@@ -146,10 +149,13 @@ class InvoiceDeleteView(PermissionRequiredMixin, FormView):
     def get_success_url(self):
         return f'/fatture?deleted={self.number}'
 
-class CSVInvoiceCreateView(PermissionRequiredMixin, CreateView):
+class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
     model = CSVInvoice
     permission_required = 'accounting.add_csvinvoice'
     form_class = CSVInvoiceCreateForm
 
     def get_success_url(self):
-        return f'/fatture?csv_created={self.object.created}&csv_modified={self.object.modified}'
+        if 'add_another' in self.request.POST:
+            return f'/fatture/add/csv?csv_created={self.object.created}&csv_modified={self.object.modified}'
+        else:
+            return f'/fatture?csv_created={self.object.created}&csv_modified={self.object.modified}'

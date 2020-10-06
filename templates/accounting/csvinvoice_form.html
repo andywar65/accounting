@@ -8,6 +8,7 @@
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
+    {% include "accounting/invoice_alerts.html" %}
     <h4><strong>Aggiungi un file CSV o XML</strong></h4>
     {% if perms.accounting.add_csvinvoice %}
     <p>Ciao {{ user.get_short_name }}, scegli il file e poi premi invio.
@@ -22,12 +23,7 @@
     <form action="" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
         {{ form|crispy }}
         <hr class="mb-4">
-        <div class="row">
-          <div class="col col-md-6">
-            <button class="btn btn-secondary btn-lg btn-block" type="submit">Invia</button>
-          </div>
-        </div>
-        <small>I campi con l'asterisco (*) sono obbligatori</small>
+          {% include "accounting/invoice_buttons.html" %}
         <hr class="mb-4">
       {% csrf_token %}
     </form>
