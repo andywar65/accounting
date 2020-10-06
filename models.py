@@ -91,11 +91,12 @@ class CSVInvoice(models.Model):
         tree = ET.parse(self.csv.path)
         root = tree.getroot()
         cp = root.find('.//CedentePrestatore')
-        if cp.find('.//Denominazione').text == 'Associazione Professionale Perilli':
+        den = cp.find('.//Denominazione')
+        if ET.iselement(den) and den.text == 'Associazione Professionale Perilli':
             active = True
             category = 'A00'
             cc = root.find('.//CessionarioCommittente')
-            if cc.find('.//Denominazione'):
+            if ET.iselement(cc.find('.//Denominazione')):
                 client = cc.find('.//Denominazione').text
             else:
                 client = (cc.find('.//Nome').text + ' ' +
@@ -103,8 +104,8 @@ class CSVInvoice(models.Model):
         else:
             active = False
             category = 'P00'
-            if cp.find('.//Denominazione'):
-                client = cp.find('.//Denominazione').text
+            if ET.iselement(den):
+                client = den.text
             else:
                 client = (cp.find('.//Nome').text + ' ' +
                     cp.find('.//Cognome').text)
