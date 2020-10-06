@@ -29,6 +29,8 @@ class InvoiceDeleteForm(forms.Form):
         help_text = """Attento, l'operazione non è reversibile.""")
 
 class CSVInvoiceCreateForm(ModelForm):
+    csv = forms.FileField(label = 'File CSV / XML',
+        widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
     class Meta:
         model = CSVInvoice
