@@ -166,13 +166,13 @@ class CSVInvoice(models.Model):
                 self.modified += 1
             super(CSVInvoice, self).save(update_fields=['created', 'modified'])
         except:
-            pass
+            pass#TODO add failed option
 
     def save(self, *args, **kwargs):
         self.created = 0
         self.modified = 0
         super(CSVInvoice, self).save(*args, **kwargs)
-        ext = self.get_filename().split('.')[1]
+        ext = self.get_filename().split('.')[1].lower()
         if ext == 'csv':
             self.parse_csv()
         elif ext == 'xml':
