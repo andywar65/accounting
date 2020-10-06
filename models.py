@@ -83,18 +83,31 @@ class CSVInvoice(models.Model):
                             self.modified += 1
                     except:
                         pass
+            if self.created or self.modified:
+                super(CSVInvoice, self).save(update_fields=['created', 'modified'])
         except:
             pass
-        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def guess_category(self, string):
         low = string.lower()
-        auto = ['renault', 'dacia', 'telepass', 'q8', 'autostrade']
+        auto = ['renault', 'dacia', 'telepass', 'q8', 'autostrade', 'kuwait', 'auto']
         tel = ['fastweb', 'telecom', 'wind']
+        coll = ['braghetta', 'petocchi', 'giordanella']
+        attr = ['xerox', 'adrastea', 'grenke']
+        serv = ['progesoft', 'geoweb', 'istedil', 'aruba', 'unisapiens']
+        cart = ['ufficio moderno']
         if any(x in low for x in auto):
             return 'P01AU'
         if any(x in low for x in tel):
             return 'P04TE'
+        if any(x in low for x in coll):
+            return 'P05CO'
+        if any(x in low for x in attr):
+            return 'P02AT'
+        if any(x in low for x in serv):
+            return 'P14SE'
+        if any(x in low for x in cart):
+            return 'P03CA'
         return 'P00'
 
     def parse_xml(self):
@@ -151,9 +164,9 @@ class CSVInvoice(models.Model):
                 self.created += 1
             else:
                 self.modified += 1
+            super(CSVInvoice, self).save(update_fields=['created', 'modified'])
         except:
             pass
-        super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
     def save(self, *args, **kwargs):
         self.created = 0
