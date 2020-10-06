@@ -87,6 +87,16 @@ class CSVInvoice(models.Model):
             pass
         super(CSVInvoice, self).save(update_fields=['created', 'modified'])
 
+    def guess_category(self, string):
+        low = string.lower()
+        auto = ['renault', 'dacia', 'telepass', 'q8', 'autostrade']
+        tel = ['fastweb', 'telecom', 'wind']
+        if any(x in low for x in auto):
+            return 'P01AU'
+        if any(x in low for x in tel):
+            return 'P04TE'
+        return 'P00'
+
     def parse_xml(self):
         tree = ET.parse(self.csv.path)
         root = tree.getroot()
@@ -103,12 +113,12 @@ class CSVInvoice(models.Model):
                     cc.find('.//Cognome').text)
         else:
             active = False
-            category = 'P00'
             if ET.iselement(den):
                 client = den.text
             else:
                 client = (cp.find('.//Nome').text + ' ' +
                     cp.find('.//Cognome').text)
+            category = self.guess_category(client)
         date = root.find('.//Data').text
         number = root.find('.//Numero').text
         security = 0
