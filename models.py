@@ -170,9 +170,9 @@ class CSVInvoice(models.Model):
     get_filename.short_description = 'Nome file'
 
     def __str__(self):
-        return 'File CSV - %s' % (self.id)
+        return 'File - %s' % (self.id)
 
     class Meta:
-        verbose_name = 'File CSV'
-        verbose_name_plural = 'File CSV'
+        verbose_name = 'File CSV/XML'
+        verbose_name_plural = 'File CSV/XML'
         ordering = ('-date', )
