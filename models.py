@@ -1,6 +1,6 @@
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, date
 import xml.etree.ElementTree as ET
 
 from django.db import models
@@ -14,7 +14,7 @@ class Invoice(models.Model):
     client = models.CharField('Cliente/Fornitore', max_length = 100, )
     active = models.BooleanField('Attiva', default=False,
         help_text = """Se selezionato è attiva, altrimenti è passiva""")
-    date = models.DateTimeField('Data', default = now, )
+    date = models.DateField('Data', default = now, )
     descr = models.TextField('Causale', null=True, blank=True, )
     amount = models.DecimalField('Imponibile', max_digits=8, decimal_places=2)
     security = models.DecimalField('Contributo previdenziale', default = 0.00,
@@ -126,7 +126,7 @@ class CSVInvoice(models.Model):
             security += float(sec.text)
         descr = ''
         for dsc in root.findall('.//Descrizione'):
-            descr += dsc.text
+            descr += dsc.text + '\n'
         amount = 0
         for amnt in root.findall('.//PrezzoTotale'):
             amount += float(amnt.text)
