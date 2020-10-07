@@ -185,14 +185,8 @@ def csv_writer(writer, qs):
     writer.writerow(['Numero', 'Cliente', 'Attiva?', 'gg/mm/aa', 'Descrizione',
         'Imponibile', 'Contributi', 'IVA', 'Categoria', 'Pagata?'])
     for i in qs:
-        if i.active:
-            active = 'yes'
-        else:
-            active = ''
-        if i.paid:
-            paid = 'yes'
-        else:
-            paid = ''
+        active = 'yes' if i.active else ''
+        paid = 'yes' if i.paid else ''
         date = datetime.strftime(i.date, '%d/%m/%y')
         writer.writerow([i.number, i.client, active, date, i.descr,
             i.amount, i.security, i.vat, i.category, paid])
