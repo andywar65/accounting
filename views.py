@@ -18,7 +18,7 @@ from .choices import CAT
 def year_download(request, year):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}.csv"'
 
     writer = csv.writer(response)
     writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
