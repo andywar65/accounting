@@ -92,7 +92,7 @@ class CSVInvoice(models.Model):
         super(CSVInvoice, self).save(update_fields=['created', 'modified',
             'failed'])
 
-    def guess_category(self, string):
+    def guess_passive_category(self, string):
         low = string.lower()
         auto = ['renault', 'dacia', 'telepass', 'q8', 'autostrade', 'kuwait', 'auto']
         tel = ['fastweb', 'telecom', 'wind']
@@ -102,17 +102,33 @@ class CSVInvoice(models.Model):
         cart = ['ufficio moderno']
         if any(x in low for x in auto):
             return 'P01AU'
-        if any(x in low for x in tel):
+        elif any(x in low for x in tel):
             return 'P04TE'
-        if any(x in low for x in coll):
+        elif any(x in low for x in coll):
             return 'P05CO'
-        if any(x in low for x in attr):
+        elif any(x in low for x in attr):
             return 'P02AT'
-        if any(x in low for x in serv):
+        elif any(x in low for x in serv):
             return 'P14SE'
-        if any(x in low for x in cart):
+        elif any(x in low for x in cart):
             return 'P03CA'
         return 'P00'
+
+    def guess_active_category(self, string):
+        low = string.lower()
+        prog = ['progetto', 'progettazione', 'fattibilità']
+        dl = ['dl', 'direzione lavori', 'collaudo']
+        cat = ['catasto', 'catastale']
+        per = ['perizia', 'relazione', 'consulenza']
+        if any(x in low for x in prog):
+            return 'A01PR'
+        elif any(x in low for x in dl):
+            return 'A02DL'
+        elif any(x in low for x in cat):
+            return 'A03CT'
+        elif any(x in low for x in per):
+            return 'A04PE'
+        return 'A00'
 
     def parse_xml(self):
         tree = ET.parse(self.csv.path)
@@ -121,7 +137,6 @@ class CSVInvoice(models.Model):
         den = cp.find('.//Denominazione')
         if ET.iselement(den) and den.text == 'Associazione Professionale Perilli':
             active = True
-            category = 'A00'
             cc = root.find('.//CessionarioCommittente')
             if ET.iselement(cc.find('.//Denominazione')):
                 client = cc.find('.//Denominazione').text
@@ -135,7 +150,7 @@ class CSVInvoice(models.Model):
             else:
                 client = (cp.find('.//Nome').text + ' ' +
                     cp.find('.//Cognome').text)
-            category = self.guess_category(client)
+            category = self.guess_passive_category(client)
         date = root.find('.//Data').text
         number = root.find('.//Numero').text
         security = 0
@@ -144,6 +159,8 @@ class CSVInvoice(models.Model):
         descr = ''
         for dsc in root.findall('.//Descrizione'):
             descr += dsc.text + '\n'
+        if active:
+            category = self.guess_active_category(descr)
         amount = 0
         for amnt in root.findall('.//PrezzoTotale'):
             amount += float(amnt.text)
