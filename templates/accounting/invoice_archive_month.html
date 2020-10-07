@@ -10,6 +10,7 @@
 <ul>
   <li><a href="/fatture/{% now 'Y' %}/">Fatture dell'anno corrente</a></li>
   <li><a href="#charts">Vai ai grafici</a></li>
+  <li><a href="/fatture/{{ month|date:"Y/m" }}/download/">Scarica file CSV</a></li>
 </ul>
 <div class="row">
   <div class="col col-md-4">

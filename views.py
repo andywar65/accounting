@@ -15,32 +15,6 @@ from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
 from .choices import CAT
 
-@permission_required('accounting.view_invoice')
-def year_download(request, year):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}.csv"'
-
-    qs = Invoice.objects.filter(date__year=year)
-
-    writer = csv.writer(response)
-    writer.writerow(['Numero', 'Cliente', 'Attiva?', 'gg/mm/aa', 'Descrizione',
-        'Imponibile', 'Contributi', 'IVA', 'Categoria', 'Pagata?'])
-    for i in qs:
-        if i.active:
-            active = 'yes'
-        else:
-            active = ''
-        if i.paid:
-            paid = 'yes'
-        else:
-            paid = ''
-        date = datetime.strftime(i.date, '%d/%m/%y')
-        writer.writerow([i.number, i.client, active, date, i.descr,
-            i.amount, i.security, i.vat, i.category, paid])
-
-    return response
-
 class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
     model = Invoice
     permission_required = 'accounting.view_invoice'
@@ -206,3 +180,46 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
             return f'/fatture/add/csv?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'
         else:
             return f'/fatture?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'
+
+def csv_writer(writer, qs):
+    writer.writerow(['Numero', 'Cliente', 'Attiva?', 'gg/mm/aa', 'Descrizione',
+        'Imponibile', 'Contributi', 'IVA', 'Categoria', 'Pagata?'])
+    for i in qs:
+        if i.active:
+            active = 'yes'
+        else:
+            active = ''
+        if i.paid:
+            paid = 'yes'
+        else:
+            paid = ''
+        date = datetime.strftime(i.date, '%d/%m/%y')
+        writer.writerow([i.number, i.client, active, date, i.descr,
+            i.amount, i.security, i.vat, i.category, paid])
+    return writer
+
+@permission_required('accounting.view_invoice')
+def year_download(request, year):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}.csv"'
+
+    qs = Invoice.objects.filter(date__year=year)
+
+    writer = csv.writer(response)
+    writer = csv_writer(writer, qs)
+
+    return response
+
+@permission_required('accounting.view_invoice')
+def month_download(request, year, month):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="Fatture-{month}-{year}.csv"'
+
+    qs = Invoice.objects.filter(date__year=year).filter(date__month=month)
+
+    writer = csv.writer(response)
+    writer = csv_writer(writer, qs)
+
+    return response
