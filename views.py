@@ -156,19 +156,23 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
     form_class = CSVInvoiceCreateForm
 
     def post(self, request, *args, **kwargs):
+        self.created = 0
+        self.modified = 0
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = request.FILES.getlist('csv')
         if form.is_valid():
             for f in files:
-                file_instance = CSVInvoice(csv=f)
-                file_instance.save()
+                instance = CSVInvoice(csv=f)
+                instance.save()
+                self.created += instance.created
+                self.modified += instance.modified
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
-    def get_success_url(self):#{self.object.created}{self.object.modified}
+    def get_success_url(self):
         if 'add_another' in self.request.POST:
-            return f'/fatture/add/csv?csv_created=x&csv_modified=x'
+            return f'/fatture/add/csv?csv_created={self.created}&csv_modified={self.modified}'
         else:
-            return f'/fatture?csv_created=x&csv_modified=x'
+            return f'/fatture?csv_created={self.created}&csv_modified={self.modified}'
