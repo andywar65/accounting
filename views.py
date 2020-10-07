@@ -149,8 +149,9 @@ class InvoiceDeleteView(PermissionRequiredMixin, FormView):
     def get_success_url(self):
         return f'/fatture?deleted={self.number}'
 
-class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
+class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
     model = CSVInvoice
+    template_name = 'accounting/csvinvoice_form.html'
     permission_required = 'accounting.add_csvinvoice'
     form_class = CSVInvoiceCreateForm
 
@@ -166,8 +167,8 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView)
         else:
             return self.form_invalid(form)
 
-    def get_success_url(self):
+    def get_success_url(self):#{self.object.created}{self.object.modified}
         if 'add_another' in self.request.POST:
-            return f'/fatture/add/csv?csv_created={self.object.created}&csv_modified={self.object.modified}'
+            return f'/fatture/add/csv?csv_created=x&csv_modified=x'
         else:
-            return f'/fatture?csv_created={self.object.created}&csv_modified={self.object.modified}'
+            return f'/fatture?csv_created=x&csv_modified=x'
