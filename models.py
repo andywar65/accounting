@@ -54,6 +54,7 @@ class CSVInvoice(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['csv', 'xml'])])
     created = models.IntegerField(default=0, editable=False)
     modified = models.IntegerField(default=0, editable=False)
+    failed = models.IntegerField(default=0, editable=False)
 
     def parse_csv(self):
         #this exception catches file anomalies
@@ -81,12 +82,15 @@ class CSVInvoice(models.Model):
                             self.created += 1
                         else:
                             self.modified += 1
-                    except:
-                        pass
-            if self.created or self.modified:
-                super(CSVInvoice, self).save(update_fields=['created', 'modified'])
-        except:
-            pass
+                    except: #single row fails
+                        if not row[3] == 'gg/mm/aa':#means it's not header
+                            self.failed += 1
+        except: #all document fails
+            self.created = 0
+            self.modified = 0
+            self.failed = 1
+        super(CSVInvoice, self).save(update_fields=['created', 'modified',
+            'failed'])
 
     def guess_category(self, string):
         low = string.lower()
@@ -164,13 +168,15 @@ class CSVInvoice(models.Model):
                 self.created += 1
             else:
                 self.modified += 1
-            super(CSVInvoice, self).save(update_fields=['created', 'modified'])
         except:
-            pass#TODO add failed option
+            self.failed += 1
+        super(CSVInvoice, self).save(update_fields=['created', 'modified',
+            'failed'])
 
     def save(self, *args, **kwargs):
         self.created = 0
         self.modified = 0
+        self.failed = 0
         super(CSVInvoice, self).save(*args, **kwargs)
         ext = self.get_filename().split('.')[1].lower()
         if ext == 'csv':

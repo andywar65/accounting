@@ -30,6 +30,7 @@ class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
         elif 'csv_created' in self.request.GET:
             context['csv_created'] = self.request.GET['csv_created']
             context['csv_modified'] = self.request.GET['csv_modified']
+            context['csv_failed'] = self.request.GET['csv_failed']
         return context
 
 class ChartMixin:
@@ -109,6 +110,7 @@ class AddAnotherMixin:
         elif 'csv_created' in self.request.GET:
             context['csv_created'] = self.request.GET['csv_created']
             context['csv_modified'] = self.request.GET['csv_modified']
+            context['csv_failed'] = self.request.GET['csv_failed']
         return context
 
 class InvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
@@ -155,24 +157,21 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
     permission_required = 'accounting.add_csvinvoice'
     form_class = CSVInvoiceCreateForm
 
-    def post(self, request, *args, **kwargs):
+    def form_valid(self, form):
         self.created = 0
         self.modified = 0
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        files = request.FILES.getlist('csv')
-        if form.is_valid():
-            for f in files:
-                instance = CSVInvoice(csv=f)
-                instance.save()
-                self.created += instance.created
-                self.modified += instance.modified
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        self.failed = 0
+        files = self.request.FILES.getlist('csv')
+        for f in files:
+            instance = CSVInvoice(csv=f)
+            instance.save()
+            self.created += instance.created
+            self.modified += instance.modified
+            self.failed += instance.failed
+        return super(CSVInvoiceCreateView, self).form_valid(form)
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
-            return f'/fatture/add/csv?csv_created={self.created}&csv_modified={self.modified}'
+            return f'/fatture/add/csv?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'
         else:
-            return f'/fatture?csv_created={self.created}&csv_modified={self.modified}'
+            return f'/fatture?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'

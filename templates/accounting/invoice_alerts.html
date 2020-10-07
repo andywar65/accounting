@@ -21,7 +21,8 @@
   </div>
 {% elif csv_created %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    Fatture create: <strong>{{ csv_created }}</strong>, fatture modificate: <strong>{{ csv_modified }}</strong>
+    Fatture create: <strong>{{ csv_created }}</strong>, modificate:
+      <strong>{{ csv_modified }}</strong>, errori: <strong>{{ csv_failed }}</strong>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>

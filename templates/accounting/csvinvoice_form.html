@@ -11,7 +11,7 @@
     {% include "accounting/invoice_alerts.html" %}
     <h4><strong>Aggiungi un file CSV o XML</strong></h4>
     {% if perms.accounting.add_csvinvoice %}
-    <p>Ciao {{ user.get_short_name }}, scegli il file e poi premi invio.
+    <p>Ciao {{ user.get_short_name }}, scegli il file (anche più d'uno) e poi Salva.
       Il file CSV deve contenere <a href="{% static 'accounting/sample.csv' %}">
       questi campi</a>, mentre l'XML è quello scaricabile assieme alla fattura elettronica.</p>
     <hr class="mb-4">
