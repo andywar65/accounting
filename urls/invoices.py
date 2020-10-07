@@ -1,13 +1,15 @@
 from django.urls import path
 from accounting.views import (InvoiceArchiveIndexView, InvoiceYearArchiveView,
     InvoiceMonthArchiveView, InvoiceCreateView, InvoiceUpdateView,
-    InvoiceDeleteView, CSVInvoiceCreateView,)
+    InvoiceDeleteView, CSVInvoiceCreateView, year_download)
 
 app_name = 'invoices'
 urlpatterns = [
     path('', InvoiceArchiveIndexView.as_view(), name = 'index'),
     path('<int:year>/', InvoiceYearArchiveView.as_view(),
         name = 'year'),
+    path('<int:year>/download/', year_download,
+        name = 'year_download'),
     path('<int:year>/<int:month>/', InvoiceMonthArchiveView.as_view(),
         name = 'month'),
     path('add/', InvoiceCreateView.as_view(), name = 'add'),
