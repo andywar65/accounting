@@ -8,11 +8,13 @@ from django.views.generic import CreateView, UpdateView, FormView
 from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
     MonthArchiveView )
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.decorators import permission_required
 
 from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
 from .choices import CAT
 
+@permission_required('accounting.view_invoice')
 def year_download(request, year):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
