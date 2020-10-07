@@ -1,5 +1,6 @@
 from decimal import Decimal
 import csv
+from datetime import datetime
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -20,9 +21,23 @@ def year_download(request, year):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="Fatture-{year}.csv"'
 
+    qs = Invoice.objects.filter(date__year=year)
+
     writer = csv.writer(response)
-    writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
-    writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
+    writer.writerow(['Numero', 'Cliente', 'Attiva?', 'gg/mm/aa', 'Descrizione',
+        'Imponibile', 'Contributi', 'IVA', 'Categoria', 'Pagata?'])
+    for i in qs:
+        if i.active:
+            active = 'yes'
+        else:
+            active = ''
+        if i.paid:
+            paid = 'yes'
+        else:
+            paid = ''
+        date = datetime.strftime(i.date, '%d/%m/%y')
+        writer.writerow([i.number, i.client, active, date, i.descr,
+            i.amount, i.security, i.vat, i.category, paid])
 
     return response
 
