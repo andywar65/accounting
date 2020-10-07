@@ -56,6 +56,15 @@ class CSVInvoice(models.Model):
     modified = models.IntegerField(default=0, editable=False)
     failed = models.IntegerField(default=0, editable=False)
 
+    def prepare_float(self, value):
+        if value:
+            value = value.replace("€", "")
+            value = value.replace(",", ".")
+            value = value.replace(".", "", value.count(".") -1)
+        else:
+            value = '0'
+        return float(value)
+
     def parse_csv(self):
         #this exception catches file anomalies
         try:
@@ -71,9 +80,9 @@ class CSVInvoice(models.Model):
                                 'client': row[1],
                                 'active': bool(row[2]),
                                 'descr': row[4],
-                                'amount': prepare_float(row[5]),
-                                'security': prepare_float(row[6]),
-                                'vat': prepare_float(row[7]),
+                                'amount': self.prepare_float(row[5]),
+                                'security': self.prepare_float(row[6]),
+                                'vat': self.prepare_float(row[7]),
                                 'category': row[8],
                                 'paid': bool(row[9])
                                 }
