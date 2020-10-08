@@ -17,10 +17,6 @@ class InvoiceModelTest(TestCase):
         csvinvoice = CSVInvoice.objects.create(date = '2020-05-09 15:53:00+02',
             csv = SimpleUploadedFile('sample.csv', b'Foo, Bar'))
 
-    def tearDown(self):
-        os.remove(os.path.join(settings.MEDIA_ROOT,
-            'uploads/invoices/csv/sample.csv'))
-
     def test_invoice_str_method(self):
         inv = Invoice.objects.get(number='001')
         self.assertEquals(inv.__str__(), '001')
