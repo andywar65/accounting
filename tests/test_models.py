@@ -27,3 +27,13 @@ class InvoiceModelTest(TestCase):
     def test_csvinvoice_get_filename(self):
         csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
         self.assertEquals(csvinv.get_filename(), 'sample.csv')
+
+    def test_csvinvoice_prepare_float(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        value = '€1.000,00'
+        self.assertEquals(csvinv.prepare_float(value), 1000.00)
+
+    def test_csvinvoice_prepare_float_0(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        value = ''
+        self.assertEquals(csvinv.prepare_float(value), 0)
