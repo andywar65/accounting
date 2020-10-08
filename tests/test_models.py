@@ -1,7 +1,12 @@
-from django.test import TestCase
+import os
+
+from django.conf import settings
+from django.test import TestCase, override_settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from accounting.models import Invoice, CSVInvoice
 
+@override_settings(MEDIA_ROOT=os.path.join(settings.MEDIA_ROOT, 'temp'))
 class InvoiceModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -10,7 +15,11 @@ class InvoiceModelTest(TestCase):
             amount = 1000, security = 10, vat = 100, category = 'A00',
             paid = False)
         csvinvoice = CSVInvoice.objects.create(date = '2020-05-09 15:53:00+02',
-            csv = 'accounting/sample.csv')
+            csv = SimpleUploadedFile('sample.csv', b'Foo, Bar'))
+
+    def tearDown(self):
+        os.remove(os.path.join(settings.MEDIA_ROOT,
+            'uploads/invoices/csv/sample.csv'))
 
     def test_invoice_str_method(self):
         inv = Invoice.objects.get(number='001')
@@ -19,6 +28,12 @@ class InvoiceModelTest(TestCase):
     def test_invoice_get_total_method(self):
         inv = Invoice.objects.get(number='001')
         self.assertEquals(inv.get_total(), 1110)
+
+    def test_csvinvoice_fails_reading_file(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        self.assertEquals(csvinv.created, 0)
+        self.assertEquals(csvinv.modified, 0)
+        self.assertEquals(csvinv.failed, 1)
 
     def test_csvinvoice_str_method(self):
         csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
