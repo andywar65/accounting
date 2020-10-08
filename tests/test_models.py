@@ -37,3 +37,28 @@ class InvoiceModelTest(TestCase):
         csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
         value = ''
         self.assertEquals(csvinv.prepare_float(value), 0)
+
+    def test_csvinvoice_guess_passive_category(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        dict = {'Renault': 'P01AU', 'Telecom': 'P04TE',
+            'Giordanella': 'P05CO', 'Xerox': 'P02AT',
+            'Aruba': 'P14SE','Ufficio Moderno': 'P03CA',}
+        for string, cat in dict.items():
+            self.assertEquals(csvinv.guess_passive_category(string), cat)
+
+    def test_csvinvoice_guess_passive_category_fail(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        string = 'Citroen'
+        self.assertEquals(csvinv.guess_passive_category(string), 'P00')
+
+    def test_csvinvoice_guess_active_category(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        dict = {'Progetto': 'A01PR', 'DL': 'A02DL',
+            'Catasto': 'A03CT', 'Perizia': 'A04PE',}
+        for string, cat in dict.items():
+            self.assertEquals(csvinv.guess_active_category(string), cat)
+
+    def test_csvinvoice_guess_active_category_fail(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
+        string = 'pulizia cessi'
+        self.assertEquals(csvinv.guess_active_category(string), 'A00')
