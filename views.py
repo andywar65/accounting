@@ -209,7 +209,7 @@ def year_download(request, year):
 def month_download(request, year, month):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="Fatture-{month}-{year}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}-{month}.csv"'
 
     qs = Invoice.objects.filter(date__year=year).filter(date__month=month)
 
