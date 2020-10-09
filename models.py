@@ -131,42 +131,42 @@ class CSVInvoice(models.Model):
         return 'A00'
 
     def parse_xml(self):
-        tree = ET.parse(self.csv.path)
-        root = tree.getroot()
-        cp = root.find('.//CedentePrestatore')
-        den = cp.find('.//Denominazione')
-        if ET.iselement(den) and den.text == 'Associazione Professionale Perilli':
-            active = True
-            cc = root.find('.//CessionarioCommittente')
-            if ET.iselement(cc.find('.//Denominazione')):
-                client = cc.find('.//Denominazione').text
-            else:
-                client = (cc.find('.//Nome').text + ' ' +
-                    cc.find('.//Cognome').text)
-        else:
-            active = False
-            if ET.iselement(den):
-                client = den.text
-            else:
-                client = (cp.find('.//Nome').text + ' ' +
-                    cp.find('.//Cognome').text)
-            category = self.guess_passive_category(client)
-        date = root.find('.//Data').text
-        number = root.find('.//Numero').text
-        security = 0
-        for sec in root.findall('.//ImportoContributoCassa'):
-            security += float(sec.text)
-        descr = ''
-        for dsc in root.findall('.//Descrizione'):
-            descr += dsc.text + '\n'
-        if active:
-            category = self.guess_active_category(descr)
-        amount = 0
-        for amnt in root.findall('.//PrezzoTotale'):
-            amount += float(amnt.text)
-        vat = root.find('.//Imposta').text
-        #this exception catches input anomalies
+        #this exception catches file and input anomalies
         try:
+            tree = ET.parse(self.csv.path)
+            root = tree.getroot()
+            cp = root.find('.//CedentePrestatore')
+            den = cp.find('.//Denominazione')
+            if ET.iselement(den) and den.text == 'Associazione Professionale Perilli':
+                active = True
+                cc = root.find('.//CessionarioCommittente')
+                if ET.iselement(cc.find('.//Denominazione')):
+                    client = cc.find('.//Denominazione').text
+                else:
+                    client = (cc.find('.//Nome').text + ' ' +
+                        cc.find('.//Cognome').text)
+            else:
+                active = False
+                if ET.iselement(den):
+                    client = den.text
+                else:
+                    client = (cp.find('.//Nome').text + ' ' +
+                        cp.find('.//Cognome').text)
+                category = self.guess_passive_category(client)
+            date = root.find('.//Data').text
+            number = root.find('.//Numero').text
+            security = 0
+            for sec in root.findall('.//ImportoContributoCassa'):
+                security += float(sec.text)
+            descr = ''
+            for dsc in root.findall('.//Descrizione'):
+                descr += dsc.text + '\n'
+            if active:
+                category = self.guess_active_category(descr)
+            amount = 0
+            for amnt in root.findall('.//PrezzoTotale'):
+                amount += float(amnt.text)
+            vat = root.find('.//Imposta').text
             obj, created = Invoice.objects.update_or_create(
                 number = number,
                 date = datetime.strptime(date, '%Y-%m-%d'),
