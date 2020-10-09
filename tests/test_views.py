@@ -135,3 +135,33 @@ class InvoiceViewTest(TestCase):
             'Tasse': Decimal('0'),
             'Telefoni': Decimal('0'),
             'Varie': Decimal('0')})
+
+    def test_invoice_month_view_status_code_not_logged(self):
+        response = self.client.get(reverse('invoices:month',
+            kwargs={'year': '2020', 'month': '05'}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_invoice_month_view_status_code_logged(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:month',
+            kwargs={'year': '2020', 'month': '05'}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_invoice_month_view_template_logged(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:month',
+            kwargs={'year': '2020', 'month': '05'}))
+        self.assertTemplateUsed(response,
+            'accounting/invoice_archive_month.html')
+
+    def test_invoice_month_view_context(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        all_invoices = Invoice.objects.filter(date__year=2020)
+        all_invoices = all_invoices.filter(date__month=5)
+        response = self.client.get(reverse('invoices:month',
+            kwargs={'year': '2020', 'month': '05'}))
+        self.assertQuerysetEqual(response.context['all_invoices'], all_invoices,
+            transform=lambda x: x)
