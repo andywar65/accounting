@@ -13,12 +13,20 @@ class InvoiceViewTest(TestCase):
     def setUpTestData(cls):
         viewer = User.objects.create_user(username='viewer',
             password='P4s5W0r6')
+        adder = User.objects.create_user(username='adder',
+            password='P4s5W0r6')
         content_type = ContentType.objects.get_for_model(Invoice)
         permission = Permission.objects.get(
             codename='view_invoice',
             content_type=content_type,
         )
         viewer.user_permissions.add(permission)
+        adder.user_permissions.add(permission)#adder also views!
+        permission = Permission.objects.get(
+            codename='add_invoice',
+            content_type=content_type,
+        )
+        adder.user_permissions.add(permission)
         invoice2 = Invoice.objects.create(number='002', client = 'Mr. Client',
             active = True, date = '2020-05-02', descr = 'My first invoice',
             amount = 1000, security = 10, vat = 100, category = 'A01PR',
@@ -165,3 +173,72 @@ class InvoiceViewTest(TestCase):
             kwargs={'year': '2020', 'month': '05'}))
         self.assertQuerysetEqual(response.context['all_invoices'], all_invoices,
             transform=lambda x: x)
+
+    def test_invoice_create_view_status_code_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:add'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_invoice_create_view_template_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:add'))
+        self.assertTemplateUsed(response, '403.html')
+
+    def test_invoice_create_view_status_code_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:add'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_invoice_create_view_template_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:add'))
+        self.assertTemplateUsed(response, 'accounting/invoice_form.html')
+
+    def test_invoice_create_view_post_validation_active(self):
+        """We test form validation and response code. Category 0 code means
+        the code of the first category error (can be more than one)"""
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.post('/fatture/add/', {'number': '999',
+            'client': 'Mr. Bean', 'active': True, 'date': '09/10/20',
+            'amount': 1000, 'security': 10, 'vat': 100, 'category': 'P01AU',
+            'paid': False})
+        self.assertEqual(response.context['form'].errors.as_data()['category'][0].code,
+            'passive_to_active')
+        self.assertEqual(response.status_code, 200)
+
+    def test_invoice_create_view_post_validation_passive(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.post('/fatture/add/', {'number': '999',
+            'client': 'Mr. Bean', 'active': False, 'date': '09/10/20',
+            'amount': 1000, 'security': 10, 'vat': 100, 'category': 'A01PR',
+            'paid': False})
+        self.assertEqual(response.context['form'].errors.as_data()['category'][0].code,
+            'active_to_passive')
+        self.assertEqual(response.status_code, 200)#error, so no redirect
+
+    def test_invoice_create_view_post_success_redirect(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.post('/fatture/add/', {'number': '999',
+            'client': 'Mr. Bean', 'active': True, 'date': '09/10/20',
+            'amount': 1000, 'security': 10, 'vat': 100, 'category': 'A01PR',
+            'paid': False}, follow = True)#remember to follow
+        self.assertRedirects(response, '/fatture/?created=999', status_code = 302,
+            target_status_code = 200)#302 is first step of redirect chain
+
+    def test_invoice_create_view_post_success_redirect_add_another(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        #add_another True is the button that saves and adds another invoice
+        response = self.client.post('/fatture/add/', {'number': '998',
+            'client': 'Mr. Bean', 'active': True, 'date': '09/10/20',
+            'amount': 1000, 'security': 10, 'vat': 100, 'category': 'A01PR',
+            'paid': False, 'add_another': True }, follow = True)
+        self.assertRedirects(response, '/fatture/add/?created=998',
+            status_code = 302, target_status_code = 200)
