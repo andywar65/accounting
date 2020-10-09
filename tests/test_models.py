@@ -151,10 +151,50 @@ class XMLInvoiceModelTest(TestCase):
             csv = SimpleUploadedFile('bad_file.xml', b'<Foo><Bar></Bar></Foo>',
             'text/xml')
             )
+        content = """
+<Fattura versione="FPR12">
+    <CedentePrestatore>
+        <Denominazione>Associazione Professionale Perilli</Denominazione>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+        <Denominazione>Miglior Cliente</Denominazione>
+    </CessionarioCommittente>
+    <Data>1965-04-13</Data>
+    <Numero>001/1965</Numero>
+    <ImportoContributoCassa>10</ImportoContributoCassa>
+    <Descrizione>Un lavoro malfatto</Descrizione>
+    <PrezzoTotale>1000</PrezzoTotale>
+    <Imposta>100</Imposta>
+</Fattura>"""
+        xmlinvoice6 = CSVInvoice.objects.create(date = '2020-05-06 15:53:00+02',
+            csv = SimpleUploadedFile('created_file.xml', content.encode(),
+            'text/xml')
+            )
+        content = """
+<Fattura versione="FPR12">
+    <CedentePrestatore>
+        <Nome>Miglior</Nome>
+        <Cognome>Fornitura</Cognome>
+    </CedentePrestatore>
+    <CessionarioCommittente>
+        <Denominazione>Associazione Professionale Perilli</Denominazione>
+    </CessionarioCommittente>
+    <Data>1967-04-23</Data>
+    <Numero>001/1967</Numero>
+    <Descrizione>Una fornitura indecente</Descrizione>
+    <PrezzoTotale>1000</PrezzoTotale>
+    <Descrizione>Un'altra fornitura indecente</Descrizione>
+    <PrezzoTotale>2000</PrezzoTotale>
+    <Imposta>300</Imposta>
+</Fattura>"""
+        xmlinvoice7 = CSVInvoice.objects.create(date = '2020-05-07 15:53:00+02',
+            csv = SimpleUploadedFile('modified_file.xml', content.encode(),
+            'text/xml')
+            )
 
     def tearDown(self):
         """Checks if created file exists, then removes it"""
-        list = ('bad_file', 'header_file', 'created_file', 'modified_file')
+        list = ('bad_file', 'created_file', 'modified_file')
         for name in list:
             if os.path.isfile(os.path.join(settings.MEDIA_ROOT,
                 f'uploads/invoices/csv/{name}.xml')):
@@ -166,3 +206,16 @@ class XMLInvoiceModelTest(TestCase):
         self.assertEquals(xmlinv.created, 0)
         self.assertEquals(xmlinv.modified, 0)
         self.assertEquals(xmlinv.failed, 1)
+
+    def test_xmlinvoice_success_loading_created_file(self):
+        xmlinv = CSVInvoice.objects.get(date='2020-05-06 15:53:00+02')
+        self.assertEquals(xmlinv.created, 1)
+        self.assertEquals(xmlinv.modified, 0)
+        self.assertEquals(xmlinv.failed, 0)
+
+    def test_xmlinvoice_alert_loading_modified_file(self):
+        xmlinv = CSVInvoice.objects.get(date='2020-05-07 15:53:00+02')
+        xmlinv.save()
+        self.assertEquals(xmlinv.created, 0)
+        self.assertEquals(xmlinv.modified, 1)
+        self.assertEquals(xmlinv.failed, 0)
