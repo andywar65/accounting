@@ -6,8 +6,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from accounting.models import Invoice, CSVInvoice
 
-@override_settings(MEDIA_ROOT=os.path.join(settings.MEDIA_ROOT, 'temp'))
 class InvoiceModelTest(TestCase):
+    """Testing all methods that don't need SimpleUploadedFile"""
     @classmethod
     def setUpTestData(cls):
         invoice = Invoice.objects.create(number='001', client = 'Mr. Client',
@@ -15,7 +15,8 @@ class InvoiceModelTest(TestCase):
             amount = 1000, security = 10, vat = 100, category = 'A00',
             paid = False)
         csvinvoice = CSVInvoice.objects.create(date = '2020-05-09 15:53:00+02',
-            csv = SimpleUploadedFile('sample.csv', b'Foo, Bar'))
+            csv = 'uploads/invoices/csv/sample.csv'
+            )
 
     def test_invoice_str_method(self):
         inv = Invoice.objects.get(number='001')
@@ -25,7 +26,7 @@ class InvoiceModelTest(TestCase):
         inv = Invoice.objects.get(number='001')
         self.assertEquals(inv.get_total(), 1110)
 
-    def test_csvinvoice_fails_reading_file(self):
+    def test_csvinvoice_fails_to_read_file(self):
         csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
         self.assertEquals(csvinv.created, 0)
         self.assertEquals(csvinv.modified, 0)
@@ -73,3 +74,38 @@ class InvoiceModelTest(TestCase):
         csvinv = CSVInvoice.objects.get(date='2020-05-09 15:53:00+02')
         string = 'pulizia cessi'
         self.assertEquals(csvinv.guess_active_category(string), 'A00')
+
+@override_settings(MEDIA_ROOT=os.path.join(settings.MEDIA_ROOT, 'temp'))
+class CSVInvoiceModelTest(TestCase):
+    """Testing methods that need SimpleUploadedFile"""
+    @classmethod
+    def setUpTestData(cls):
+        csvinvoice = CSVInvoice.objects.create(date = '2020-05-01 15:53:00+02',
+            csv = SimpleUploadedFile('bad_file.csv', b'Foo, Bar, FooBar, date',
+            'text/csv')
+            )
+        csvinvoice2 = CSVInvoice.objects.create(date = '2020-05-02 15:53:00+02',
+            csv = SimpleUploadedFile('header_file.csv',
+            b'Foo, Bar, FooBar, gg/mm/aa', 'text/csv')
+            )
+
+    def tearDown(self):
+        """Checks if created file exists, then removes it"""
+        list = ('bad_file', 'header_file')
+        for name in list:
+            if os.path.isfile(os.path.join(settings.MEDIA_ROOT,
+                f'uploads/invoices/csv/{name}.csv')):
+                os.remove(os.path.join(settings.MEDIA_ROOT,
+                    f'uploads/invoices/csv/{name}.csv'))
+
+    def test_csvinvoice_fails_loading_bad_file(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-01 15:53:00+02')
+        self.assertEquals(csvinv.created, 0)
+        self.assertEquals(csvinv.modified, 0)
+        self.assertEquals(csvinv.failed, 1)
+
+    def test_csvinvoice_null_loading_header_file(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-02 15:53:00+02')
+        self.assertEquals(csvinv.created, 0)
+        self.assertEquals(csvinv.modified, 0)
+        self.assertEquals(csvinv.failed, 0)
