@@ -78,13 +78,15 @@ class InvoiceModelTest(TestCase):
 
 @override_settings(MEDIA_ROOT=os.path.join(settings.MEDIA_ROOT, 'temp'))
 class CSVInvoiceModelTest(TestCase):
-    """Testing methods that need SimpleUploadedFile"""
+    """Testing methods that need SimpleUploadedFile and CSV files"""
     @classmethod
     def setUpTestData(cls):
         csvinvoice = CSVInvoice.objects.create(date = '2020-05-01 15:53:00+02',
             csv = SimpleUploadedFile('bad_file.csv', b'Foo, Bar, FooBar, date',
             'text/csv')
             )
+        """Workaround for adding CSV files to SimpleUploadedFile found here:
+        https://github.com/django-import-export/tests/core/tests/test_admin_integration.py"""
         dataset = Dataset(headers=["Numero","Cliente","Attiva?", "gg/mm/aa"])
         content = dataset.csv
         csvinvoice2 = CSVInvoice.objects.create(date = '2020-05-02 15:53:00+02',
@@ -139,3 +141,28 @@ class CSVInvoiceModelTest(TestCase):
         self.assertEquals(csvinv.created, 0)
         self.assertEquals(csvinv.modified, 1)
         self.assertEquals(csvinv.failed, 0)
+
+@override_settings(MEDIA_ROOT=os.path.join(settings.MEDIA_ROOT, 'temp'))
+class XMLInvoiceModelTest(TestCase):
+    """Testing methods that need SimpleUploadedFile and XML files"""
+    @classmethod
+    def setUpTestData(cls):
+        xmlinvoice5 = CSVInvoice.objects.create(date = '2020-05-05 15:53:00+02',
+            csv = SimpleUploadedFile('bad_file.xml', b'<Foo><Bar></Bar></Foo>',
+            'text/xml')
+            )
+
+    def tearDown(self):
+        """Checks if created file exists, then removes it"""
+        list = ('bad_file', 'header_file', 'created_file', 'modified_file')
+        for name in list:
+            if os.path.isfile(os.path.join(settings.MEDIA_ROOT,
+                f'uploads/invoices/csv/{name}.xml')):
+                os.remove(os.path.join(settings.MEDIA_ROOT,
+                    f'uploads/invoices/csv/{name}.xml'))
+
+    def test_xmlinvoice_fails_loading_bad_file(self):
+        xmlinv = CSVInvoice.objects.get(date='2020-05-05 15:53:00+02')
+        self.assertEquals(xmlinv.created, 0)
+        self.assertEquals(xmlinv.modified, 0)
+        self.assertEquals(xmlinv.failed, 1)
