@@ -1,4 +1,5 @@
 import os
+from tablib import Dataset
 
 from django.conf import settings
 from django.test import TestCase, override_settings
@@ -84,14 +85,30 @@ class CSVInvoiceModelTest(TestCase):
             csv = SimpleUploadedFile('bad_file.csv', b'Foo, Bar, FooBar, date',
             'text/csv')
             )
+        dataset = Dataset(headers=["Numero","Cliente","Attiva?", "gg/mm/aa"])
+        content = dataset.csv
         csvinvoice2 = CSVInvoice.objects.create(date = '2020-05-02 15:53:00+02',
-            csv = SimpleUploadedFile('header_file.csv',
-            b'Foo, Bar, FooBar, gg/mm/aa', 'text/csv')
+            csv = SimpleUploadedFile('header_file.csv', content.encode(),
+            content_type="text/csv")
+            )
+        dataset = Dataset(headers=["Numero","Cliente","Attiva?", "gg/mm/aa",
+            "Descrizione", "Imponibile", "Contributi", "Iva", "Categoria",
+            "Pagata?"])
+        dataset.append(['001', 'Client', 'yes', '13/04/65', 'Foo', '1000', '10',
+            '100', 'A00', 'yes'])
+        content = dataset.csv
+        csvinvoice3 = CSVInvoice.objects.create(date = '2020-05-03 15:53:00+02',
+            csv = SimpleUploadedFile('created_file.csv', content.encode(),
+            content_type="text/csv")
+            )
+        csvinvoice4 = CSVInvoice.objects.create(date = '2020-05-04 15:53:00+02',
+            csv = SimpleUploadedFile('modified_file.csv', content.encode(),
+            content_type="text/csv")
             )
 
     def tearDown(self):
         """Checks if created file exists, then removes it"""
-        list = ('bad_file', 'header_file')
+        list = ('bad_file', 'header_file', 'created_file', 'modified_file')
         for name in list:
             if os.path.isfile(os.path.join(settings.MEDIA_ROOT,
                 f'uploads/invoices/csv/{name}.csv')):
@@ -108,4 +125,17 @@ class CSVInvoiceModelTest(TestCase):
         csvinv = CSVInvoice.objects.get(date='2020-05-02 15:53:00+02')
         self.assertEquals(csvinv.created, 0)
         self.assertEquals(csvinv.modified, 0)
+        self.assertEquals(csvinv.failed, 0)
+
+    def test_csvinvoice_success_loading_created_file(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-03 15:53:00+02')
+        self.assertEquals(csvinv.created, 1)
+        self.assertEquals(csvinv.modified, 0)
+        self.assertEquals(csvinv.failed, 0)
+
+    def test_csvinvoice_alert_loading_modified_file(self):
+        csvinv = CSVInvoice.objects.get(date='2020-05-04 15:53:00+02')
+        csvinv.save()
+        self.assertEquals(csvinv.created, 0)
+        self.assertEquals(csvinv.modified, 1)
         self.assertEquals(csvinv.failed, 0)
