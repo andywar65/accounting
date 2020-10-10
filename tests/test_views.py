@@ -1,5 +1,7 @@
+import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -21,7 +23,9 @@ class InvoiceViewTest(TestCase):
             content_type=content_type,
         )
         viewer.user_permissions.add(permission)
-        permissions = Permission.objects.filter( content_type=content_type,)
+        content_type_2 = ContentType.objects.get_for_model(CSVInvoice)
+        permissions = (Permission.objects.filter(content_type__in=[content_type,
+            content_type_2]))
         adder.user_permissions.set(permissions)
         invoice2 = Invoice.objects.create(number='002', client = 'Mr. Client',
             active = True, date = '2020-05-02', descr = 'My first invoice',
@@ -327,3 +331,85 @@ class InvoiceViewTest(TestCase):
             {'delete': True, }, follow = True)
         self.assertRedirects(response, '/fatture/?deleted=002', status_code=302,
             target_status_code = 200)#302 is first step of redirect chain
+
+    def test_csvinvoice_add_view_status_code_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:csv'))
+        self.assertEqual(response.status_code, 403)
+
+    def test_csvinvoice_add_view_template_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:csv'))
+        self.assertTemplateUsed(response, '403.html')
+
+    def test_csvinvoice_add_view_status_code_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:csv'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_csvinvoice_add_view_template_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:csv'))
+        self.assertTemplateUsed(response, 'accounting/csvinvoice_form.html')
+
+    def test_csvinvoice_add_view_post_success_redirect(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        file_path = os.path.join(settings.BASE_DIR,
+            'accounting/static/accounting/sample.csv')
+        with open(file_path) as csv_file:
+            response = self.client.post('/fatture/add/csv/',
+                {'csv': csv_file,
+                'date': '2020-05-09 15:53:00+02'}, follow = True)
+        csv_file.close()
+        self.assertRedirects(response,
+            '/fatture/?csv_created=2&csv_modified=0&csv_failed=0',
+            status_code=302, target_status_code = 200)
+
+    def test_csvinvoice_add_view_post_success_redirect_add_another(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        #add_another True is the button that saves and adds another invoice
+        file_path = os.path.join(settings.BASE_DIR,
+            'accounting/static/accounting/sample.csv')
+        with open(file_path) as csv_file:
+            response = self.client.post('/fatture/add/csv/',
+                {'csv': csv_file,
+                'date': '2020-05-10 15:53:00+02', 'add_another': True},
+                follow = True)
+        csv_file.close()
+        self.assertRedirects(response,
+            '/fatture/add/csv/?csv_created=2&csv_modified=0&csv_failed=0',
+            status_code = 302, target_status_code = 200)
+
+    def test_year_download_view_redirects_no_log(self):
+        response = self.client.get(reverse('invoices:year_download',
+            kwargs={'year': '2020'}), follow = True)
+        self.assertRedirects(response,
+            '/accounts/login/?next=%2Ffatture%2F2020%2Fdownload%2F',
+            status_code=302, target_status_code = 200)
+
+    def test_year_download_view_status_code_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:year_download',
+            kwargs={'year': '2020'}), follow = True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_month_download_view_redirects_no_log(self):
+        response = self.client.get(reverse('invoices:month_download',
+            kwargs={'year': '2020', 'month': '05'}), follow = True)
+        self.assertRedirects(response,
+            '/accounts/login/?next=%2Ffatture%2F2020%2F05%2Fdownload%2F',
+            status_code=302, target_status_code = 200)
+
+    def test_month_download_view_status_code_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        response = self.client.get(reverse('invoices:month_download',
+            kwargs={'year': '2020', 'month': '05'}), follow = True)
+        self.assertEqual(response.status_code, 200)
