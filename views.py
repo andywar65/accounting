@@ -1,9 +1,8 @@
-import email
-from imaplib import IMAP4_SSL
-from pprint import pprint
 from decimal import Decimal
 import csv
 from datetime import datetime
+
+from imap_tools import MailBox, Q
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -234,35 +233,14 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         PORT = settings.INVOICE_PORT
         FROM = settings.INVOICE_FROM
 
-        server = IMAP4_SSL('mail.de.opalstack.com', port=PORT)
-        server.login(USER, PASSWORD)
-
-        rv, output = server.select('INBOX')
-        rv, output = server.search(None, 'UNSEEN')
-        id_list = output[0].split()
-
-        email_data = []
-        for e_id in id_list[::-1][:10]:
-            rv, output = server.fetch(e_id, '(BODY.PEEK[HEADER])')#BODY[HEADER]
-            msg = email.message_from_bytes(output[0][1])
-            hdr = {}
-            hdr['to'] = email.header.decode_header(msg['to'])[0][0]
-            hdr['from'] = email.header.decode_header(msg['from'])[0][0]
-            if not FROM in hdr['from']:
-                break
-            hdr['date'] = email.header.decode_header(msg['date'])[0][0]
-            hdr['subject'] = email.header.decode_header(msg['subject'])[0][0]
-            hdr['body'] = "No textual content found :("
-            maintype = msg.get_content_maintype()
-            if maintype == 'multipart':
-                for part in msg.get_payload():
-                    if part.get_content_maintype() == 'text':
-                        hdr['body'] = part.get_payload()
-                        break
-            elif maintype == 'text':
-                hdr['body'] = msg.get_payload()
-            email_data.append(hdr)
-            pprint(hdr)
-
-        server.close()
-        server.logout()
+        with MailBox('mail.de.opalstack.com').login(USER, PASSWORD, 'INBOX') as mailbox:
+            for message in mailbox.fetch():
+                #subjects = [msg.subject for msg in mailbox.fetch(Q(seen=False),
+                    #mark_seen=True)]
+            #print(subjects)
+                for att in message.attachments:  # list: [Attachment objects]
+                    att.filename         # str: 'cat.jpg'
+                    att.content_type     # str: 'image/jpeg'
+                    att.payload          # bytes: b'\xff\xd8\xff\xe0\'
+                    print(att.filename, att.content_type,
+                        att.payload.decode("utf-8"))
