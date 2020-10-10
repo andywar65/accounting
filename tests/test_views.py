@@ -290,3 +290,40 @@ class InvoiceViewTest(TestCase):
             follow = True)
         self.assertRedirects(response, '/fatture/add/?modified=002',
             status_code = 302, target_status_code = 200)
+
+    def test_invoice_delete_view_status_code_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        inv = Invoice.objects.get(number='002')
+        response = self.client.get(f'/fatture/delete/invoice/{inv.id}/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_invoice_delete_view_template_no_perm(self):
+        self.client.post('/accounts/login/', {'username':'viewer',
+            'password':'P4s5W0r6'})
+        inv = Invoice.objects.get(number='002')
+        response = self.client.get(f'/fatture/delete/invoice/{inv.id}/')
+        self.assertTemplateUsed(response, '403.html')
+
+    def test_invoice_delete_view_status_code_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        inv = Invoice.objects.get(number='002')
+        response = self.client.get(f'/fatture/delete/invoice/{inv.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_invoice_delete_view_template_perm(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        inv = Invoice.objects.get(number='002')
+        response = self.client.get(f'/fatture/delete/invoice/{inv.id}/')
+        self.assertTemplateUsed(response, 'accounting/invoice_delete_form.html')
+
+    def test_invoice_delete_view_post_success_redirect(self):
+        self.client.post('/accounts/login/', {'username':'adder',
+            'password':'P4s5W0r6'})
+        inv = Invoice.objects.get(number='002')
+        response = self.client.post(f'/fatture/delete/invoice/{inv.id}/',
+            {'delete': True, }, follow = True)
+        self.assertRedirects(response, '/fatture/?deleted=002', status_code=302,
+            target_status_code = 200)#302 is first step of redirect chain
