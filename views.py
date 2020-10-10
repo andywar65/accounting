@@ -2,7 +2,7 @@ from decimal import Decimal
 import csv
 from datetime import datetime
 
-from imap_tools import MailBox, Q
+from imap_tools import MailBox, AND
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -234,7 +234,7 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         FROM = settings.INVOICE_FROM
 
         with MailBox('mail.de.opalstack.com').login(USER, PASSWORD, 'INBOX') as mailbox:
-            for message in mailbox.fetch():
+            for message in mailbox.fetch(AND(seen=False), mark_seen=True):
                 #subjects = [msg.subject for msg in mailbox.fetch(Q(seen=False),
                     #mark_seen=True)]
             #print(subjects)
@@ -243,4 +243,4 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
                     att.content_type     # str: 'image/jpeg'
                     att.payload          # bytes: b'\xff\xd8\xff\xe0\'
                     print(att.filename, att.content_type,
-                        att.payload.decode("utf-8"))
+                        att.payload.decode("latin-1"))
