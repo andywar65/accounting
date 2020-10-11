@@ -13,6 +13,7 @@ from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
     MonthArchiveView, )
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
@@ -225,8 +226,12 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
     permission_required = 'accounting.view_invoice'
     template_name = 'accounting/email.html'
 
-    def setup(self, response, *args, **kwargs):
-        super(CSVInvoiceMailTemplateView, self).setup(response, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['csv_created'] = 0
+        context['csv_modified'] = 0
+        context['csv_failed'] = 0
 
         USER = settings.INVOICE_EMAIL
         PASSWORD = settings.INVOICE_PWD
@@ -234,13 +239,15 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         FROM = settings.INVOICE_FROM
 
         with MailBox('mail.de.opalstack.com').login(USER, PASSWORD, 'INBOX') as mailbox:
-            for message in mailbox.fetch(AND(seen=False), mark_seen=True):
-                #subjects = [msg.subject for msg in mailbox.fetch(Q(seen=False),
-                    #mark_seen=True)]
-            #print(subjects)
+            for message in mailbox.fetch(AND(seen=False,
+                from_='studio@studioperilli.com'), mark_seen=False):
                 for att in message.attachments:  # list: [Attachment objects]
-                    att.filename         # str: 'cat.jpg'
-                    att.content_type     # str: 'image/jpeg'
-                    att.payload          # bytes: b'\xff\xd8\xff\xe0\'
-                    print(att.filename, att.content_type,
-                        att.payload.decode("latin-1"))
+                    file = SimpleUploadedFile(att.filename, att.payload,
+                        att.content_type)
+                    instance = CSVInvoice(csv=file)
+                    instance.save()
+                    context['csv_created'] += instance.created
+                    context['csv_modified'] += instance.modified
+                    context['csv_failed'] += instance.failed
+
+        return context
