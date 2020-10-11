@@ -1,1 +1,22 @@
 {% extends 'base.html' %}
+
+{% block title %}{{ website.acro }} | Fatture via email{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col col-md-4">
+    <h4><strong>Fatture via email</strong></h4>
+  </div>
+</div>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  Fatture create: <strong>{{ csv_created }}</strong>, modificate:
+    <strong>{{ csv_modified }}</strong>, errori: <strong>{{ csv_failed }}</strong>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<ul>
+  <li><a href="/fatture/{% now 'Y' %}/">Fatture dell'anno corrente</a></li>
+  <li><a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a></li>
+</ul>
+{% endblock content %}

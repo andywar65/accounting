@@ -240,7 +240,7 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
 
         with MailBox('mail.de.opalstack.com').login(USER, PASSWORD, 'INBOX') as mailbox:
             for message in mailbox.fetch(AND(seen=False,
-                from_='studio@studioperilli.com'), mark_seen=False):
+                from_='studio@studioperilli.com'), mark_seen=True):
                 for att in message.attachments:  # list: [Attachment objects]
                     file = SimpleUploadedFile(att.filename, att.payload,
                         att.content_type)
@@ -249,5 +249,4 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
                     context['csv_created'] += instance.created
                     context['csv_modified'] += instance.modified
                     context['csv_failed'] += instance.failed
-
         return context
