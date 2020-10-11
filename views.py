@@ -233,14 +233,15 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         context['csv_modified'] = 0
         context['csv_failed'] = 0
 
-        USER = settings.INVOICE_EMAIL
-        PASSWORD = settings.INVOICE_PWD
-        PORT = settings.INVOICE_PORT
-        FROM = settings.INVOICE_FROM
+        HOST = settings.IMAP_HOST
+        USER = settings.IMAP_USER
+        PASSWORD = settings.IMAP_PWD
+        PORT = settings.IMAP_PORT
+        FROM = settings.IMAP_FROM
 
-        with MailBox('mail.de.opalstack.com').login(USER, PASSWORD, 'INBOX') as mailbox:
+        with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
             for message in mailbox.fetch(AND(seen=False,
-                from_='studio@studioperilli.com'), mark_seen=True):
+                from_=FROM), mark_seen=True):
                 for att in message.attachments:  # list: [Attachment objects]
                     file = SimpleUploadedFile(att.filename, att.payload,
                         att.content_type)
