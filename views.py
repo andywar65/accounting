@@ -240,7 +240,7 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         FROM = settings.IMAP_FROM
 
         with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
-            for message in mailbox.fetch(AND(seen=False,
+            for message in mailbox.fetch(AND(seen=False, subject='fatture',
                 from_=FROM), mark_seen=True):
                 for att in message.attachments:  # list: [Attachment objects]
                     file = SimpleUploadedFile(att.filename, att.payload,
