@@ -2,7 +2,7 @@ import os
 from decimal import Decimal
 
 from django.conf import settings
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.urls import reverse
@@ -25,10 +25,9 @@ class InvoiceViewTest(TestCase):
             content_type=content_type,
         )
         viewer.user_permissions.add(permission)
+        group = Group.objects.get(name='Accounting')
+        adder.groups.add(group)
         content_type_2 = ContentType.objects.get_for_model(CSVInvoice)
-        permissions = (Permission.objects.filter(content_type__in=[content_type,
-            content_type_2]))
-        adder.user_permissions.set(permissions)
         invoice2 = Invoice.objects.create(number='002', client = 'Mr. Client',
             active = True, date = '2020-05-02', descr = 'My first invoice',
             amount = 1000, security = 10, vat = 100, category = 'A01PR',

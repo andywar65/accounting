@@ -6,7 +6,8 @@ def create_accounting_group(sender, **kwargs):
     grp, created = Group.objects.get_or_create(name='Accounting')
     if created:
         permission = Permission.objects.filter(codename__in=("view_invoice",
-            'add_invoice', 'change_invoice', 'delete_invoice', 'add_csvinvoice'))
+            'add_invoice', 'change_invoice', 'delete_invoice', 'view_csvinvoice',
+            'add_csvinvoice', 'change_csvinvoice', 'delete_csvinvoice'))
         grp.permissions.set(permission)
 
 class AccountingConfig(AppConfig):
