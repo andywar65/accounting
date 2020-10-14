@@ -7,7 +7,6 @@ from imap_tools import MailBox, AND
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, FormView, TemplateView
 from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
     MonthArchiveView, )
