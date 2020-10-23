@@ -16,6 +16,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
+from .management.commands.fetch_invoice_emails import do_command
 from .choices import CAT
 
 class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
@@ -26,6 +27,10 @@ class InvoiceArchiveIndexView(PermissionRequiredMixin, ArchiveIndexView):
     context_object_name = 'all_invoices'
     paginate_by = 50
     allow_empty = True
+
+    def setup(self, request, *args, **kwargs):
+        super(InvoiceArchiveIndexView, self).setup(request, *args, **kwargs)
+        do_command()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
