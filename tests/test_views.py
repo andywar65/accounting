@@ -415,29 +415,29 @@ class InvoiceViewTest(TestCase):
             kwargs={'year': '2020', 'month': '05'}), follow = True)
         self.assertEqual(response.status_code, 200)
 
-    def test_csvinvoice_email_view_redirects_no_log(self):
-        response = self.client.get(reverse('invoices:email'))
-        self.assertRedirects(response,
-            '/accounts/login/?next=%2Ffatture%2Femail%2F',
-            status_code=302, target_status_code = 200)
+    #def test_csvinvoice_email_view_redirects_no_log(self):
+        #response = self.client.get(reverse('invoices:email'))
+        #self.assertRedirects(response,
+            #'/accounts/login/?next=%2Ffatture%2Femail%2F',
+            #status_code=302, target_status_code = 200)
 
-    def test_csvinvoice_email_view_status_code_no_perm(self):
-        self.client.post('/accounts/login/', {'username':'noviewer',
-            'password':'P4s5W0r6'})
-        response = self.client.get(reverse('invoices:email'))
-        self.assertEqual(response.status_code, 403)
+    #def test_csvinvoice_email_view_status_code_no_perm(self):
+        #self.client.post('/accounts/login/', {'username':'noviewer',
+            #'password':'P4s5W0r6'})
+        #response = self.client.get(reverse('invoices:email'))
+        #self.assertEqual(response.status_code, 403)
 
-    def test_csvinvoice_email_view_status_code_perm(self):
-        self.client.post('/accounts/login/', {'username':'viewer',
-            'password':'P4s5W0r6'})
-        response = self.client.get(reverse('invoices:email'))
-        self.assertEqual(response.status_code, 200)
+    #def test_csvinvoice_email_view_status_code_perm(self):
+        #self.client.post('/accounts/login/', {'username':'viewer',
+            #'password':'P4s5W0r6'})
+        #response = self.client.get(reverse('invoices:email'))
+        #self.assertEqual(response.status_code, 200)
 
-    def test_csvinvoice_email_view_context_perm(self):
-        """Of course no mail is fetched, so counters stay at 0"""
-        self.client.post('/accounts/login/', {'username':'viewer',
-            'password':'P4s5W0r6'})
-        response = self.client.get(reverse('invoices:email'))
-        self.assertEqual(response.context['csv_created'], 0)
-        self.assertEqual(response.context['csv_modified'], 0)
-        self.assertEqual(response.context['csv_failed'], 0)
+    #def test_csvinvoice_email_view_context_perm(self):
+        #"""Of course no mail is fetched, so counters stay at 0"""
+        #self.client.post('/accounts/login/', {'username':'viewer',
+            #'password':'P4s5W0r6'})
+        #response = self.client.get(reverse('invoices:email'))
+        #self.assertEqual(response.context['csv_created'], 0)
+        #self.assertEqual(response.context['csv_modified'], 0)
+        #self.assertEqual(response.context['csv_failed'], 0)
