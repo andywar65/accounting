@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
-{% block title %}{{ website.acro }} | Aggiungi file{% endblock title %}
+{% block title %}{{ website.acro }} | {% translate 'Add file' %}{% endblock title %}
 
 {% block content %}
 <div class="row">
@@ -11,13 +12,16 @@
     {% include "accounting/invoice_alerts.html" %}
     <h4><strong>Aggiungi un file CSV o XML</strong></h4>
     {% if perms.accounting.add_csvinvoice %}
-    <p>Ciao {{ user.get_short_name }}, scegli il file (anche più d'uno) e poi Salva.
-      Il file CSV deve contenere <a href="{% static 'accounting/sample.csv' %}">
-      questi campi</a>, mentre l'XML è quello scaricabile assieme alla fattura elettronica.</p>
+    {% static 'accounting/sample.csv' as sample_file_url %}
+    <p>{% blocktranslate with name=user.get_short_name %}Hello {{ name }},
+      choose the file (or files) and submit.
+      CSV file must contain <a href="{{ sample_file_url }}">
+      these fields</a>, while the XML can be downloaded with the electronic invoice.
+      {% endblocktranslate %}</p>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
-        Per favore, correggi gli errori qui sotto.
+        {% translate 'Fix the errors below, please' %}.
       </p>
     {% endif %}
     <form action="" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
@@ -28,7 +32,7 @@
       {% csrf_token %}
     </form>
     {% else %}
-    Non hai le credenziali per aggiungere file di fatture.
+      {% translate "You don't have permission to add invoice file" %}.
     {% endif %}
   </div>
 </div>

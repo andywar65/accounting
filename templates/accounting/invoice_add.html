@@ -1,2 +1,4 @@
-<a class="btn btn-secondary" href="{% url "invoices:add" %}">Aggiungi fattura</a>
-<a class="btn btn-secondary" href="{% url "invoices:csv" %}">Aggiungi file</a>
+{% load i18n %}
+
+<a class="btn btn-secondary" href="{% url 'invoices:add' %}">{% translate 'Add invoice'%}</a>
+<a class="btn btn-secondary" href="{% url 'invoices:csv' %}">{% translate 'Add file'%}</a>

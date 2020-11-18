@@ -1,28 +1,37 @@
+{% load i18n %}
+
 {% if created %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    Fattura <strong>{{ created }}</strong> creata con successo!
+    {% blocktranslate with link=created %}
+    Invoice <strong>{{ link }}</strong> successfully created!
+    {% endblocktranslate %}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 {% elif modified %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    Fattura <strong>{{ modified }}</strong> modificata con successo!
+    {% blocktranslate with link=modified %}
+    Invoice <strong>{{ link }}</strong> successfully modified!
+    {% endblocktranslate %}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 {% elif deleted %}
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    Fattura <strong>{{ deleted }}</strong> eliminata con successo!
+    {% blocktranslate with link=deleted %}
+    Invoice <strong>{{ link }}</strong> successfully deleted!
+    {% endblocktranslate %}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 {% elif csv_created %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
-    Fatture create: <strong>{{ csv_created }}</strong>, modificate:
-      <strong>{{ csv_modified }}</strong>, errori: <strong>{{ csv_failed }}</strong>
+    {% translate 'Created invoices' %}: <strong>{{ csv_created }}</strong>,
+    {% translate 'modified' %}: <strong>{{ csv_modified }}</strong>,
+    {% translate 'errors' %}: <strong>{{ csv_failed }}</strong>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
