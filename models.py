@@ -25,7 +25,7 @@ class Invoice(models.Model):
     category = models.CharField(_('Category'), max_length = 5, choices = CAT,
         default = 'X', help_text = _("""'A' for active and 'P' for passive.
             """))
-    paid = models.BooleanField(_('Payed'), default=False, )
+    paid = models.BooleanField(_('Paid'), default=False, )
 
     def __str__(self):
         return self.number

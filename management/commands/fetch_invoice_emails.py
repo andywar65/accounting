@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils.translation import gettext as _
 
 from imap_tools import MailBox, AND
 
@@ -19,7 +20,7 @@ def do_command():
     FROM = settings.IMAP_FROM
 
     with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
-        for message in mailbox.fetch(AND(seen=False, subject='fatture', ),
+        for message in mailbox.fetch(AND(seen=False, subject=_('invoices'), ),
             mark_seen=True):
             try:
                 usr = User.objects.get(email=message.from_)
