@@ -6,41 +6,42 @@ import xml.etree.ElementTree as ET
 from django.db import models
 from django.utils.timezone import now
 from django.core.validators import FileExtensionValidator
+from django.utils.translation import gettext as _
 
 from .choices import CAT
 
 class Invoice(models.Model):
-    number = models.CharField('Numero', max_length = 50, )
-    client = models.CharField('Cliente/Fornitore', max_length = 100, )
-    active = models.BooleanField('Attiva', default=False,
-        help_text = """Se selezionato è attiva, altrimenti è passiva""")
-    date = models.DateField('Data', default = now, )
-    descr = models.TextField('Causale', null=True, blank=True, )
-    amount = models.DecimalField('Imponibile', max_digits=8, decimal_places=2)
-    security = models.DecimalField('Contributo previdenziale', default = 0.00,
+    number = models.CharField(_('Number'), max_length = 50, )
+    client = models.CharField(_('Client/Supplier'), max_length = 100, )
+    active = models.BooleanField(_('Active'), default=False,
+        help_text = _("""Active if checked, passive if not"""))
+    date = models.DateField(_('Date'), default = now, )
+    descr = models.TextField(_('Reason'), null=True, blank=True, )
+    amount = models.DecimalField(_('Taxable'), max_digits=8, decimal_places=2)
+    security = models.DecimalField(_('Social security'), default = 0.00,
         max_digits=8, decimal_places=2 )
-    vat = models.DecimalField('IVA', default = 0.00, max_digits=8,
+    vat = models.DecimalField(_('VAT'), default = 0.00, max_digits=8,
         decimal_places=2 )
-    category = models.CharField('Categoria', max_length = 5, choices = CAT,
-        default = 'X', help_text = """'A' per le attive e 'P' per le passive.
-            """)
-    paid = models.BooleanField('Pagata', default=False, )
+    category = models.CharField(_('Category'), max_length = 5, choices = CAT,
+        default = 'X', help_text = _("""'A' for active and 'P' for passive.
+            """))
+    paid = models.BooleanField(_('Payed'), default=False, )
 
     def __str__(self):
         return self.number
 
     def get_total(self):
         return self.amount + self.security + self.vat
-    get_total.short_description = 'Importo'
+    get_total.short_description = _('Amount')
 
     class Meta:
-        verbose_name = 'Fattura'
-        verbose_name_plural = 'Fatture'
+        verbose_name = _('Invoice')
+        verbose_name_plural = _('Invoices')
         ordering = ('-date', )
 
 class CSVInvoice(models.Model):
-    date = models.DateTimeField('Data', default = now, )
-    csv = models.FileField("File CSV / XML", max_length=200,
+    date = models.DateTimeField(_('Date'), default = now, )
+    csv = models.FileField(_("CSV / XML file"), max_length=200,
         upload_to="uploads/invoices/csv/",
         validators=[FileExtensionValidator(allowed_extensions=['csv', 'xml'])])
     created = models.IntegerField(default=0, editable=False)
@@ -203,12 +204,12 @@ class CSVInvoice(models.Model):
 
     def get_filename(self):
         return os.path.basename(self.csv.name)
-    get_filename.short_description = 'Nome file'
+    get_filename.short_description = _('File name')
 
     def __str__(self):
         return 'File - %s' % (self.id)
 
     class Meta:
-        verbose_name = 'File CSV/XML'
-        verbose_name_plural = 'File CSV/XML'
+        verbose_name = _('CSV/XML file')
+        verbose_name_plural = _('CSV/XML files')
         ordering = ('-date', )
