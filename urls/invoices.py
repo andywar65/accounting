@@ -18,9 +18,9 @@ urlpatterns = [
         name = 'month_download'),
     path(_('add/'), InvoiceCreateView.as_view(), name = 'add'),
     path(_('add/csv/'), CSVInvoiceCreateView.as_view(), name = 'csv'),
-    path(_('change/invoice/<pk>/'), InvoiceUpdateView.as_view(),
+    path(_('change/<pk>/'), InvoiceUpdateView.as_view(),
         name = 'change'),
-    path(_('delete/invoice/<pk>/'), InvoiceDeleteView.as_view(),
+    path(_('delete/<pk>/'), InvoiceDeleteView.as_view(),
         name = 'delete'),
     #path('email/', CSVInvoiceMailTemplateView.as_view(), name = 'email'),
     ]
