@@ -13,6 +13,8 @@ from django.views.generic.dates import ( ArchiveIndexView, YearArchiveView,
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils.translation import gettext as _
+from django.urls import reverse
 
 from .models import Invoice, CSVInvoice
 from .forms import InvoiceCreateForm, InvoiceDeleteForm, CSVInvoiceCreateForm
@@ -74,7 +76,7 @@ class ChartMixin:
                 active_cat[ch[1].replace('A-', '')] = round(sum, 0)
                 active_left += sum
             left = context['active_sum'] - active_left
-            active_cat['Altro'] = round(left, 0)
+            active_cat[_('Other')] = round(left, 0)
         context['active_cat'] = active_cat
         #total active invoices by category
         passive_cat = {}
@@ -88,7 +90,7 @@ class ChartMixin:
                 passive_cat[ch[1].replace('P-', '')] = round(sum, 0)
                 passive_left += sum
             left = context['passive_sum'] - passive_left
-            passive_cat['Altro'] = round(left, 0)
+            passive_cat[_('Other')] = round(left, 0)
         context['passive_cat'] = passive_cat
         return context
 
@@ -133,9 +135,9 @@ class InvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, CreateView):
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
-            return f'/fatture/add?created={self.object.number}'
+            return reverse('invoices:add') + f'?created={self.object.number}'
         else:
-            return f'/fatture?created={self.object.number}'
+            return reverse('invoices:index') + f'?created={self.object.number}'
 
 class InvoiceUpdateView(PermissionRequiredMixin, AddAnotherMixin, UpdateView):
     model = Invoice
@@ -145,9 +147,9 @@ class InvoiceUpdateView(PermissionRequiredMixin, AddAnotherMixin, UpdateView):
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
-            return f'/fatture/add?modified={self.object.number}'
+            return reverse('invoices:add') + f'?modified={self.object.number}'
         else:
-            return f'/fatture?modified={self.object.number}'
+            return reverse('invoices:index') + f'?modified={self.object.number}'
 
 class InvoiceDeleteView(PermissionRequiredMixin, FormView):
     model = Invoice
@@ -162,7 +164,7 @@ class InvoiceDeleteView(PermissionRequiredMixin, FormView):
         return super(InvoiceDeleteView, self).form_valid(form)
 
     def get_success_url(self):
-        return f'/fatture?deleted={self.number}'
+        return reverse('invoices:index') + f'?deleted={self.number}'
 
 class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
     model = CSVInvoice
@@ -185,13 +187,16 @@ class CSVInvoiceCreateView(PermissionRequiredMixin, AddAnotherMixin, FormView):
 
     def get_success_url(self):
         if 'add_another' in self.request.POST:
-            return f'/fatture/add/csv?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'
+            return (reverse('invoices:csv') +
+                f'?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}')
         else:
-            return f'/fatture?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}'
+            return (reverse('invoices:index') +
+                f'?csv_created={self.created}&csv_modified={self.modified}&csv_failed={self.failed}')
 
 def csv_writer(writer, qs):
-    writer.writerow(['Numero', 'Cliente', 'Attiva?', 'gg/mm/aa', 'Descrizione',
-        'Imponibile', 'Contributi', 'IVA', 'Categoria', 'Pagata?'])
+    writer.writerow([_('Number'), _('Client'), _('Active?'), _('dd/mm/yy'),
+        _('Description'), _('Taxable'), _('Social security'), _('VAT'),
+        _('Category'), _('Paid?')])
     for i in qs:
         active = 'yes' if i.active else ''
         paid = 'yes' if i.paid else ''
@@ -204,7 +209,8 @@ def csv_writer(writer, qs):
 def year_download(request, year):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}.csv"'
+    response['Content-Disposition'] = ('attachment; filename="%(invoices)s-%(year)d.csv"' %
+        {'invoices': _('Invoices'), 'year': year})
 
     qs = Invoice.objects.filter(date__year=year)
 
@@ -217,7 +223,8 @@ def year_download(request, year):
 def month_download(request, year, month):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="Fatture-{year}-{month}.csv"'
+    response['Content-Disposition'] = ('attachment; filename="%(invoices)s-%(year)d-%(month)d.csv"' %
+        {'invoices': _('Invoices'), 'year': year, 'month': month})
 
     qs = Invoice.objects.filter(date__year=year).filter(date__month=month)
 
@@ -244,7 +251,7 @@ class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
         FROM = settings.IMAP_FROM
 
         with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
-            for message in mailbox.fetch(AND(seen=False, subject='fatture',
+            for message in mailbox.fetch(AND(seen=False, subject=_('invoices'),
                 from_=FROM), mark_seen=True):
                 for att in message.attachments:  # list: [Attachment objects]
                     file = SimpleUploadedFile(att.filename, att.payload,
