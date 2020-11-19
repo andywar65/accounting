@@ -1,16 +1,19 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}{{ website.acro }} | Fatture{% endblock title %}
+{% block title %}{{ website.acro }} | {% translate 'Invoices' %}{% endblock title %}
 
 {% block content %}
 {% include "accounting/invoice_alerts.html" %}
 <ul>
-  <li><a href="/fatture/{% now 'Y' %}/">Fatture dell'anno corrente</a></li>
-  <li><a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a></li>
+  {% now "Y" as current_year %}
+  {% now "m" as current_month %}
+  <li><a href="{% url 'invoices:year' year=current_year %}">{% translate "This year's invoices" %}</a></li>
+  <li><a href="{% url 'invoices:month' year=current_year month=current_month %}">{% translate "This month's invoices" %}</a></li>
 </ul>
 <div class="row">
   <div class="col col-md-4">
-    <h4><strong>Lista delle fatture</strong></h4>
+    <h4><strong>{% translate 'List if invoices' %}</strong></h4>
   </div>
   <div class="col col-md-8 text-right">
     {% if perms.accounting.add_invoice %}
@@ -23,7 +26,7 @@
   {% include "accounting/invoice_loop.html" %}
 {% else %}
     <div class="col-md-12">
-        <p>Non ci sono fatture da mostrare.</p>
+        <p>{% translate "There are no invoices available" %}.</p>
     </div>
 {% endif %}
 <hr class="mb-4">
@@ -31,10 +34,10 @@
   <nav aria-label="Page navigation container">
   <ul class="pagination justify-content-center">
     {% if page_obj.has_previous %}
-    <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; PRECEDENTI </a></li>
+    <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">&laquo; {% translate "PREVIOUS" %} </a></li>
     {% endif %}
     {% if page_obj.has_next %}
-    <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> PROSSIME &raquo;</a></li>
+    <li><a href="?page={{ page_obj.next_page_number }}" class="page-link"> {% translate "NEXT" %} &raquo;</a></li>
     {% endif %}
   </ul>
   </nav>

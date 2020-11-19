@@ -1,27 +1,30 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
-{% block title %}{{ website.acro }} | Modifica fattura{% endblock title %}
+{% block title %}{{ website.acro }} | {% translate 'Modify invoice' %}{% endblock title %}
 
 {% block content %}
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
     {% include "accounting/invoice_alerts.html" %}
-    <h4><strong>Modifica una fattura</strong></h4>
+    <h4><strong>{% translate 'Modify invoice' %}</strong></h4>
     {% if perms.accounting.change_invoice %}
     <div class="row">
       <div class="col col-md-8">
-        Ciao {{ user.get_short_name }}, modifica i dati della fattura e poi invia.
+        {% blocktranslate with name=user.get_short_name %}
+          Hello {{ name }}, update the fields below then submit.
+        {% endblocktranslate %}
       </div>
       <div class="col col-md-4">
-        <a class="btn btn-danger" href="{% url 'invoices:delete' object.id %}">Cancella</a>
+        <a class="btn btn-danger" href="{% url 'invoices:delete' object.id %}">{% translate 'Delete' %}</a>
       </div>
     </div>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
-        Per favore, correggi gli errori qui sotto.
+        {% translate 'Fix the errors below, please' %}.
       </p>
     {% endif %}
     <form action="" method="post" class="needs-validation" novalidate>
@@ -32,7 +35,7 @@
       {% csrf_token %}
     </form>
     {% else %}
-    Non hai le credenziali per modificare le fatture.
+    {% translate "You don't have permissions to modify invoices" %}.
     {% endif %}
   </div>
 </div>

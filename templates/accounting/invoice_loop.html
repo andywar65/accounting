@@ -1,28 +1,30 @@
+{% load i18n %}
+
 <div class="table-responsive">
   <table class="table table-hover">
     <thead class="thead-light">
       <tr>
         <th scope="col"></th>
-        <th scope="col">Numero</th>
-        <th scope="col">Cliente</th>
-        <th scope="col">Data</th>
-        <th scope="col">Importo</th>
-        <th scope="col">Pagata</th>
+        <th scope="col">{% translate 'Number' %}</th>
+        <th scope="col">{% translate 'Client' %}</th>
+        <th scope="col">{% translate 'Date' %}</th>
+        <th scope="col">{% translate 'Amount' %}</th>
+        <th scope="col">{% translate 'Paid' %}</th>
       </tr>
     </thead>
     <tbody>
       {% for invoice in all_invoices %}
       <tr>
         {% if invoice.active %}
-          <td><span class="badge badge-pill badge-success">Attiva</span></td>
+          <td><span class="badge badge-pill badge-success">{% translate 'Active' %}</span></td>
         {% else %}
-          <td><span class="badge badge-pill badge-danger">Passiva</span></td>
+          <td><span class="badge badge-pill badge-danger">{% translate 'Passive' %}</span></td>
         {% endif %}
         <td><a href="{% url 'invoices:change' invoice.id %}">{{ invoice.number }}</a></td>
         <td>{{ invoice.client }}</td>
         <td>{{ invoice.date|date:"d/m/Y" }}</td>
         <td>€ {{ invoice.get_total }}</td>
-        <td>{% if invoice.paid %}OK{% else %}-{% endif %}</td>
+        <td>{% if invoice.paid %}{% translate 'OK' %}{% else %}-{% endif %}</td>
       </tr>
       {% endfor %}
     <tbody>

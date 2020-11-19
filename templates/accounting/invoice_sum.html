@@ -1,17 +1,19 @@
+{% load i18n %}
+
 <div class="row">
   <div class="col col-md-3"></div>
   <div class="col col-md-6">
-    <h4>Totali</h4>
+    <h4>{% translate 'Totals' %}</h4>
     <div id="chart_total"></div>
   </div>
 </div>
 <div class="row">
   <div class="col col-md-6">
-    <h4>Attive per categoria</h4>
+    <h4>{% translate 'Active by category' %}</h4>
     <div id="chart_act"></div>
   </div>
   <div class="col col-md-6">
-    <h4>Passive per categoria</h4>
+    <h4>{% translate 'Passive by category' %}</h4>
     <div id="chart_pass"></div>
   </div>
 </div>
@@ -27,11 +29,11 @@
       function drawTotalChart() {
 
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Categoria');
+        data.addColumn('string', 'Category');
         data.addColumn('number', '%');
         data.addRows([
           ['Passive', {{ passive_sum }}],
-          ['Attive', {{ active_sum }}]
+          ['Active', {{ active_sum }}]
         ]);
 
         var options = {'title':'',
@@ -46,7 +48,7 @@
       function drawActiveChart() {
 
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Categoria');
+        data.addColumn('string', 'Category');
         data.addColumn('number', '%');
         data.addRows([{% for active, data in active_cat.items %}
           ['{{ active }}', {{ data }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}
@@ -65,7 +67,7 @@
       function drawPassiveChart() {
 
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Categoria');
+        data.addColumn('string', 'Category');
         data.addColumn('number', '%');
         data.addRows([{% for passive, data in passive_cat.items %}
           ['{{ passive }}', {{ data }}]{% if forloop.last %}{% else %},{% endif %}{% endfor %}

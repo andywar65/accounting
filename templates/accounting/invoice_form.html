@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load i18n %}
 
-{% block title %}{{ website.acro }} | Aggiungi fattura{% endblock title %}
+{% block title %}{{ website.acro }} | {% translate 'Add invoice' %}{% endblock title %}
 
 {% block content %}
 <div class="row">
   <div class="col-md-2"></div>
   <div class="col-md-8">
     {% include "accounting/invoice_alerts.html" %}
-    <h4><strong>Aggiungi una fattura</strong></h4>
+    <h4><strong>{% translate 'Add invoice' %}</strong></h4>
     {% if perms.accounting.add_invoice %}
-    <p>Ciao {{ user.get_short_name }}, inserisci qui i dati della fattura e poi invia.</p>
+    <p>{% blocktranslate with name=user.get_short_name %}
+      Hello {{ name }}, fill the fields below then submit.
+    {% endblocktranslate %}</p>
     <hr class="mb-4">
     {% if form.errors %}
       <p class="alert alert-danger" role="alert">
-        Per favore, correggi gli errori qui sotto.
+        {% translate 'Fix the errors below, please' %}.
       </p>
     {% endif %}
     <form action="" method="post" class="needs-validation" novalidate>
@@ -25,7 +28,7 @@
       {% csrf_token %}
     </form>
     {% else %}
-    Non hai le credenziali per aggiungere fatture.
+    {% translate "You don't have permissions to add invoices" %}.
     {% endif %}
   </div>
 </div>
