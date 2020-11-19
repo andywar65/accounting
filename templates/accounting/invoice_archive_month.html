@@ -39,10 +39,10 @@
 <nav aria-label="Page navigation container">
   <ul class="pagination justify-content-center">
     {% if previous_month %}
-    <li><a href="{% url 'invoices:index' %}{{ previous_month|date:"Y/m/" }}" class="page-link">&laquo; {% translate "PREVIOUS" %} </a></li>
+    <li><a href="{% url 'invoices:month' year=previous_month.year month=previous_month.month %}" class="page-link">&laquo; {% translate "PREVIOUS" %} </a></li>
     {% endif %}
     {% if next_month %}
-    <li><a href="{% url 'invoices:index' %}{{ next_month|date:"Y/m/" }}" class="page-link"> {% translate "NEXT" %} &raquo;</a></li>
+    <li><a href="{% url 'invoices:month' year=next_month.year month=next_month.month %}" class="page-link"> {% translate "NEXT" %} &raquo;</a></li>
     {% endif %}
   </ul>
 </nav>

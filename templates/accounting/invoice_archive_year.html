@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}{{ website.acro }} | Fatture {{ year|date:"Y" }}{% endblock title %}
+{% block title %}{{ website.acro }} | {% translate 'Invoices' %} {{ year|date:"Y" }}{% endblock title %}
 
 {% block extra-head %}
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -8,13 +9,15 @@
 
 {% block content %}
 <ul>
-  <li><a href="/fatture/{% now 'Y/m' %}/">Fatture del mese corrente</a></li>
-  <li><a href="#charts">Vai ai grafici</a></li>
-  <li><a href="/fatture/{{ year|date:"Y" }}/download/">Scarica file CSV</a></li>
+  {% now "Y" as current_year %}
+  {% now "m" as current_month %}
+  <li><a href="{% url 'invoices:month' year=current_year month=current_month %}">{% translate "This month's invoices" %}</a></li>
+  <li><a href="#charts">{% translate "Go to charts" %}</a></li>
+  <li><a href="{% url 'invoices:year_download' year=year.year %}">{% translate "Download CSV file" %}</a></li>
 </ul>
 <div class="row">
   <div class="col col-md-4">
-    <h4><strong>Lista delle fatture del {{ year|date:"Y" }}</strong></h4>
+    <h4><strong>{% translate "Invoices of" %} {{ year|date:"Y" }}</strong></h4>
   </div>
   <div class="col col-md-8 text-right">
     {% if perms.accounting.add_invoice %}
@@ -30,17 +33,17 @@
   <hr class="mb-4">
 {% else %}
   <div class="col-md-12">
-      <p>Non ci sono fatture da mostrare.</p>
+      <p>{% translate "There are no invoices available" %}.</p>
   </div>
   <hr class="mb-4">
 {% endif %}
 <nav aria-label="Page navigation container">
   <ul class="pagination justify-content-center">
     {% if previous_year %}
-    <li><a href="/fatture/{{ previous_year|date:"Y" }}" class="page-link">&laquo; PRECEDENTE </a></li>
+    <li><a href="{% url 'invoices:year' year=previous_year.year %}" class="page-link">&laquo; {% translate "PREVIOUS" %} </a></li>
     {% endif %}
     {% if next_year %}
-    <li><a href="/fatture/{{ next_year|date:"Y" }}" class="page-link"> SUCCESSIVO &raquo;</a></li>
+    <li><a href="{% url 'invoices:year' year=next_year.year %}" class="page-link"> {% translate "NEXT" %} &raquo;</a></li>
     {% endif %}
   </ul>
 </nav>
