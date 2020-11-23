@@ -1,5 +1,4 @@
 import os
-#from tablib import Dataset
 
 from django.conf import settings
 from django.test import TestCase, override_settings
@@ -85,21 +84,11 @@ class CSVInvoiceModelTest(TestCase):
             csv = SimpleUploadedFile('bad_file.csv', b'Foo, Bar, FooBar, date',
             'text/csv')
             )
-        #"""Workaround for adding CSV files to SimpleUploadedFile found here:
-        #https://github.com/django-import-export/tests/core/tests/test_admin_integration.py"""
-        #dataset = Dataset(headers=["Numero","Cliente","Attiva?", "gg/mm/aa"])
-        #content = dataset.csv
         content = 'Numero,Cliente,Attiva?,gg/mm/aa'
         csvinvoice2 = CSVInvoice.objects.create(date = '2020-05-02 15:53:00+02',
             csv = SimpleUploadedFile('header_file.csv', content.encode(),
             content_type="text/csv")
             )
-        #dataset = Dataset(headers=["Numero","Cliente","Attiva?", "gg/mm/aa",
-            #"Descrizione", "Imponibile", "Contributi", "Iva", "Categoria",
-            #"Pagata?"])
-        #dataset.append(['001', 'Client', 'yes', '13/04/65', 'Foo', '1000', '10',
-            #'100', 'A00', 'yes'])
-        #content = dataset.csv
         content = """Numero,Cliente,Attiva?,gg/mm/aa,Descrizione,Imponibile,Contributi,Iva,Categoria,Pagata?
 001,Client,yes,13/04/65,Foo,1000,10,100,A00,yes"""
         csvinvoice3 = CSVInvoice.objects.create(date = '2020-05-03 15:53:00+02',
