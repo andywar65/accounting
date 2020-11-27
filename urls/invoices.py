@@ -3,8 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from accounting.views import (InvoiceArchiveIndexView, InvoiceYearArchiveView,
     InvoiceMonthArchiveView, InvoiceCreateView, InvoiceUpdateView,
-    InvoiceDeleteView, CSVInvoiceCreateView, year_download, month_download,
-    CSVInvoiceMailTemplateView)
+    InvoiceDeleteView, CSVInvoiceCreateView, year_download, month_download,)
+    #CSVInvoiceMailTemplateView)
 
 app_name = 'invoices'
 urlpatterns = [

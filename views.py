@@ -233,32 +233,32 @@ def month_download(request, year, month):
 
     return response
 
-class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
-    permission_required = 'accounting.view_invoice'
-    template_name = 'accounting/email.html'
+#class CSVInvoiceMailTemplateView(PermissionRequiredMixin, TemplateView):
+    #permission_required = 'accounting.view_invoice'
+    #template_name = 'accounting/email.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    #def get_context_data(self, **kwargs):
+        #context = super().get_context_data(**kwargs)
 
-        context['csv_created'] = 0
-        context['csv_modified'] = 0
-        context['csv_failed'] = 0
+        #context['csv_created'] = 0
+        #context['csv_modified'] = 0
+        #context['csv_failed'] = 0
 
-        HOST = settings.IMAP_HOST
-        USER = settings.IMAP_USER
-        PASSWORD = settings.IMAP_PWD
-        PORT = settings.IMAP_PORT
-        FROM = settings.IMAP_FROM
+        #HOST = settings.IMAP_HOST
+        #USER = settings.IMAP_USER
+        #PASSWORD = settings.IMAP_PWD
+        #PORT = settings.IMAP_PORT
+        #FROM = settings.IMAP_FROM
 
-        with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
-            for message in mailbox.fetch(AND(seen=False, subject=_('invoices'),
-                from_=FROM), mark_seen=True):
-                for att in message.attachments:  # list: [Attachment objects]
-                    file = SimpleUploadedFile(att.filename, att.payload,
-                        att.content_type)
-                    instance = CSVInvoice(csv=file)
-                    instance.save()
-                    context['csv_created'] += instance.created
-                    context['csv_modified'] += instance.modified
-                    context['csv_failed'] += instance.failed
-        return context
+        #with MailBox(HOST).login(USER, PASSWORD, 'INBOX') as mailbox:
+            #for message in mailbox.fetch(AND(seen=False, subject=_('invoices'),
+                #from_=FROM), mark_seen=True):
+                #for att in message.attachments:  # list: [Attachment objects]
+                    #file = SimpleUploadedFile(att.filename, att.payload,
+                        #att.content_type)
+                    #instance = CSVInvoice(csv=file)
+                    #instance.save()
+                    #context['csv_created'] += instance.created
+                    #context['csv_modified'] += instance.modified
+                    #context['csv_failed'] += instance.failed
+        #return context
