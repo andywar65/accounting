@@ -8,5 +8,5 @@ class InvoiceAdmin(admin.ModelAdmin):
     list_editable = ('category', 'paid')
 
 @admin.register(CSVInvoice)
-class InvoiceAdmin(admin.ModelAdmin):
+class CSVInvoiceAdmin(admin.ModelAdmin):
     list_display = ('get_filename', 'date', )
